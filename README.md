@@ -24,3 +24,42 @@ A serene, immersive Three.js journey through the altitude zones of Mount Kiliman
 - Three.js + React Three Fiber
 - Zustand (State Management)
 - Tailwind CSS (Styling)
+- Vitest + Testing Library (Unit/Integration Tests)
+- Playwright (E2E Tests)
+
+## Testing Strategy
+
+This project employs a multi-layered testing strategy to ensure reliability and correctness.
+
+### 1. Unit Tests
+Located in `app/src/**/*.test.ts`.
+- Focus: Pure logic, configuration, and state management.
+- Tools: Vitest.
+- Run: `cd app && npm test`
+
+### 2. Integration Tests
+Located in `app/src/**/*.test.tsx`.
+- Focus: Component interactions, rendering, and state updates.
+- Tools: Vitest, React Testing Library.
+- Mocks: Three.js components are mocked to avoid WebGL context issues in JSDOM.
+- Run: `cd app && npm test`
+
+### 3. End-to-End (E2E) Tests
+Located in `app/e2e/`.
+- Focus: Critical user journeys, scrolling interaction, zone transitions.
+- Tools: Playwright.
+- Run: `cd app && npm run test:e2e`
+- Note: E2E tests run against the dev server (`npm run dev`).
+
+## CI/CD
+
+GitHub Actions pipeline is configured in `.github/workflows/ci.yml`.
+It runs:
+- Linting
+- Unit/Integration Tests (with coverage)
+- E2E Tests
+
+## Coverage
+
+Run `cd app && npm run test:coverage` to generate a coverage report.
+Target coverage: > 80% for logic and components.
