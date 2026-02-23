@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import App from '../App';
-import { useStore } from '../store/useStore';
 
 // Mock Experience component since it renders Three.js Canvas
 vi.mock('./Experience', () => ({
