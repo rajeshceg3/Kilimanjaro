@@ -2,7 +2,8 @@ import { useFrame } from '@react-three/fiber';
 import { useStore } from '../store/useStore';
 import { MathUtils } from 'three';
 import { Atmosphere } from './Atmosphere';
-import { PlaceholderTerrain } from './PlaceholderTerrain';
+import { Flora } from './Flora';
+import { Particles } from './Particles';
 
 export const Scene = () => {
   useFrame((state, delta) => {
@@ -28,15 +29,11 @@ export const Scene = () => {
   return (
     <>
       <Atmosphere />
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[10, 10, 5]} intensity={1} castShadow />
+      <ambientLight intensity={0.6} />
+      <directionalLight position={[10, 20, 10]} intensity={1.2} castShadow />
 
-      <PlaceholderTerrain />
-
-      <mesh position={[0, 70, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[100, 100]} />
-        <meshStandardMaterial color="#3a3a3a" />
-      </mesh>
+      <Particles />
+      <Flora />
     </>
   );
 };
