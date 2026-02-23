@@ -1,13 +1,10 @@
 import { useFrame } from '@react-three/fiber';
 import { useStore } from '../store/useStore';
 import { MathUtils } from 'three';
-import { useScroll } from '../hooks/useScroll';
 import { Atmosphere } from './Atmosphere';
 import { PlaceholderTerrain } from './PlaceholderTerrain';
 
 export const Scene = () => {
-  useScroll();
-
   useFrame((state, delta) => {
     const altitude = useStore.getState().altitude;
     const targetAltitude = useStore.getState().targetAltitude;

@@ -1,7 +1,10 @@
 import { Canvas } from '@react-three/fiber';
 import { Scene } from './Scene';
+import { useScroll } from '../hooks/useScroll';
 
 export const Experience = () => {
+  useScroll();
+
   return (
     <div className="w-full h-screen relative bg-black">
       <Canvas

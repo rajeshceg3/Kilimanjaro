@@ -1,73 +1,65 @@
-# React + TypeScript + Vite
+# Mount Kilimanjaro Experience
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A serene, immersive Three.js journey through the altitude zones of Mount Kilimanjaro.
 
-Currently, two official plugins are available:
+## Getting Started
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+1. Navigate to the app directory:
+   ```bash
+   cd app
+   ```
 
-## React Compiler
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+3. Run the development server:
+   ```bash
+   npm run dev
+   ```
 
-## Expanding the ESLint configuration
+## Tech Stack
+- React + TypeScript
+- Three.js + React Three Fiber
+- Zustand (State Management)
+- Tailwind CSS (Styling)
+- Vitest + Testing Library (Unit/Integration Tests)
+- Playwright (E2E Tests)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Testing Strategy
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+This project employs a multi-layered testing strategy to ensure reliability and correctness.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### 1. Unit Tests
+Located in `src/**/*.test.ts`.
+- Focus: Pure logic, configuration, and state management.
+- Tools: Vitest.
+- Run: `npm test`
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### 2. Integration Tests
+Located in `src/**/*.test.tsx`.
+- Focus: Component interactions, rendering, and state updates.
+- Tools: Vitest, React Testing Library.
+- Mocks: Three.js components are mocked to avoid WebGL context issues in JSDOM.
+- Run: `npm test`
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 3. End-to-End (E2E) Tests
+Located in `e2e/`.
+- Focus: Critical user journeys, scrolling interaction, zone transitions.
+- Tools: Playwright.
+- Run: `npm run test:e2e`
+- Note: E2E tests run against the dev server (`npm run dev`).
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## CI/CD
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+GitHub Actions pipeline is configured in `.github/workflows/ci.yml`.
+It runs:
+- Linting
+- Unit/Integration Tests (with coverage)
+- E2E Tests
+
+## Coverage
+
+Run `npm run test:coverage` to generate a coverage report.
+Target coverage: > 80% for logic and components.
