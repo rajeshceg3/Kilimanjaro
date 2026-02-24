@@ -1,7 +1,7 @@
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { shaderMaterial } from '@react-three/drei';
-import { Color, BackSide, ShaderMaterial, AdditiveBlending, MathUtils } from 'three';
+import { Color, BackSide, ShaderMaterial, AdditiveBlending, MathUtils, Mesh, Points } from 'three';
 import { useStore } from '../store/useStore';
 import { getZoneAtAltitude } from '../config/zones';
 
@@ -50,7 +50,7 @@ declare module '@react-three/fiber' {
 
 const SkyGradient = () => {
   const materialRef = useRef<ShaderMaterial>(null);
-  const meshRef = useRef<any>(null);
+  const meshRef = useRef<Mesh>(null);
 
   // Reusable color objects to avoid GC
   const targetBottom = useMemo(() => new Color(), []);
@@ -94,9 +94,9 @@ const SkyGradient = () => {
 };
 
 const Stars = () => {
-  const ref = useRef<any>(null);
+  const ref = useRef<Points>(null);
 
-  const positions = useMemo(() => {
+  const [positions] = useState(() => {
     const count = 2000;
     const pos = new Float32Array(count * 3);
     for(let i=0; i<count; i++) {
@@ -108,7 +108,7 @@ const Stars = () => {
         pos[i*3+2] = r * Math.cos(phi);
     }
     return pos;
-  }, []);
+  });
 
   useFrame((state, delta) => {
     if (!ref.current) return;
@@ -128,7 +128,8 @@ const Stars = () => {
     // Using simple lerp on opacity property of material
     // Need to cast material to access opacity
     if (ref.current.material) {
-        ref.current.material.opacity = MathUtils.lerp(ref.current.material.opacity, targetOpacity, delta);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (ref.current.material as any).opacity = MathUtils.lerp((ref.current.material as any).opacity, targetOpacity, delta);
     }
   });
 

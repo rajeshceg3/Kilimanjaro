@@ -1,6 +1,6 @@
 import { useStore } from '../store/useStore';
 import { getZoneAtAltitude } from '../config/zones';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 export const UI = () => {
   const altitude = useStore((state) => Math.round(state.altitude));
@@ -34,16 +34,23 @@ export const UI = () => {
   }, []);
 
   // Handle zone text transition
+  // We use a ref to prevent unnecessary re-renders or effect loops
+  const prevZoneName = useRef(currentZone.name);
+
   useEffect(() => {
-    if (currentZone.name !== displayZone.name) {
+    if (currentZone.name !== prevZoneName.current) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFadeZone(false); // Start fade out
+
       const timer = setTimeout(() => {
         setDisplayZone(currentZone);
         setFadeZone(true); // Start fade in
-      }, 1000); // Wait for fade out to complete (1s matches duration-1000)
+        prevZoneName.current = currentZone.name;
+      }, 1000);
+
       return () => clearTimeout(timer);
     }
-  }, [currentZone.name, displayZone.name]);
+  }, [currentZone]);
 
   return (
     <div className={`fixed inset-0 pointer-events-none transition-opacity duration-1000 ${visible ? 'opacity-100' : 'opacity-0'}`}>

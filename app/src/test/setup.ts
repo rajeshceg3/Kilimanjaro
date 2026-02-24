@@ -71,6 +71,7 @@ globalThis.AudioContext = class AudioContext {
   get currentTime() {
     return 0;
   }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 } as any;
 
 globalThis.webkitAudioContext = globalThis.AudioContext;
