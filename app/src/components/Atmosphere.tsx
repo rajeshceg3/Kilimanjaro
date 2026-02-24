@@ -12,7 +12,7 @@ export const Atmosphere = () => {
     const alt = useStore.getState().altitude;
     const initialZone = getZoneAtAltitude(alt);
     scene.fog = new FogExp2(initialZone.fogColor, initialZone.fogDensity);
-    scene.background = new Color(initialZone.fogColor);
+    // Background handled by Sky component
   }, [scene]);
 
   useFrame((state, delta) => {
@@ -28,12 +28,6 @@ export const Atmosphere = () => {
 
        currentScene.fog.color.lerp(targetColor, lerpFactor);
        currentScene.fog.density += (targetDensity - currentScene.fog.density) * lerpFactor;
-
-       if (currentScene.background instanceof Color) {
-          currentScene.background.lerp(targetColor, lerpFactor);
-       } else {
-          currentScene.background = new Color(targetColor);
-       }
     }
   });
 

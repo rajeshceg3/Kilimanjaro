@@ -4,9 +4,15 @@ import { useEffect, useState } from 'react';
 
 export const UI = () => {
   const altitude = useStore((state) => Math.round(state.altitude));
-  const [visible, setVisible] = useState(true);
-  const zone = getZoneAtAltitude(altitude);
+  const currentZone = getZoneAtAltitude(altitude);
 
+  const [visible, setVisible] = useState(true);
+
+  // Zone transition state
+  const [displayZone, setDisplayZone] = useState(currentZone);
+  const [fadeZone, setFadeZone] = useState(true);
+
+  // Handle visibility based on activity
   useEffect(() => {
     let timeout: ReturnType<typeof setTimeout>;
 
@@ -27,19 +33,31 @@ export const UI = () => {
     };
   }, []);
 
+  // Handle zone text transition
+  useEffect(() => {
+    if (currentZone.name !== displayZone.name) {
+      setFadeZone(false); // Start fade out
+      const timer = setTimeout(() => {
+        setDisplayZone(currentZone);
+        setFadeZone(true); // Start fade in
+      }, 1000); // Wait for fade out to complete (1s matches duration-1000)
+      return () => clearTimeout(timer);
+    }
+  }, [currentZone.name, displayZone.name]);
+
   return (
     <div className={`fixed inset-0 pointer-events-none transition-opacity duration-1000 ${visible ? 'opacity-100' : 'opacity-0'}`}>
       <div className="absolute top-8 left-8 text-white font-light tracking-widest mix-blend-difference">
         <h1 className="text-xs opacity-50 uppercase">Altitude</h1>
-        <p className="text-4xl font-thin">{Math.round(altitude)}m</p>
+        <p className="text-4xl font-thin">{altitude}m</p>
       </div>
 
-      <div className="absolute bottom-20 w-full text-center text-white px-4 mix-blend-difference">
-        <h2 className="text-xl md:text-2xl font-light tracking-widest mb-2 transition-all duration-1000 uppercase">
-          {zone.name}
+      <div className={`absolute bottom-20 w-full text-center text-white px-4 mix-blend-difference transition-opacity duration-1000 ${fadeZone ? 'opacity-100' : 'opacity-0'}`}>
+        <h2 className="text-xl md:text-2xl font-light tracking-widest mb-2 uppercase">
+          {displayZone.name}
         </h2>
-        <p className="text-sm md:text-base opacity-70 italic max-w-md mx-auto transition-all duration-1000 font-serif">
-          "{zone.quote}"
+        <p className="text-sm md:text-base opacity-70 italic max-w-md mx-auto font-serif">
+          "{displayZone.quote}"
         </p>
       </div>
 
