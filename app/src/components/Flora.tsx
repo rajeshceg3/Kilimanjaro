@@ -16,26 +16,35 @@ const FloraZone = ({ range, color, type }: FloraProps) => {
   const data = useMemo(() => {
     return Array.from({ length: COUNT }).map(() => {
       const y = MathUtils.randFloat(range[0], range[1]) * SCALE_FACTOR;
-      // Simple cylindrical distribution to simulate mountain slope?
-      // Or just random scatter. Let's do random scatter for now but keep center somewhat clear.
       const angle = MathUtils.randFloat(0, Math.PI * 2);
-      const radius = MathUtils.randFloat(10, SPREAD); // Keep center clear (radius 0-10 empty)
+      const radius = MathUtils.randFloat(10, SPREAD);
       const x = Math.cos(angle) * radius;
       const z = Math.sin(angle) * radius;
 
       const scale = MathUtils.randFloat(0.5, 1.5);
-      const rotation = [0, MathUtils.randFloat(0, Math.PI * 2), 0] as [number, number, number];
+
+      // Full rotation for rocks/ice, Y-axis for plants
+      let rotation: [number, number, number];
+      if (type === 'rock' || type === 'ice') {
+        rotation = [
+            MathUtils.randFloat(0, Math.PI),
+            MathUtils.randFloat(0, Math.PI),
+            MathUtils.randFloat(0, Math.PI)
+        ];
+      } else {
+        rotation = [0, MathUtils.randFloat(0, Math.PI * 2), 0];
+      }
 
       return { position: [x, y, z] as [number, number, number], scale, rotation };
     });
-  }, [range]);
+  }, [range, type]);
 
   const materialProps = { color, side: DoubleSide };
 
   switch (type) {
     case 'tree': // Cone
       return (
-        <Instances range={COUNT}>
+        <Instances range={COUNT} castShadow receiveShadow>
           <coneGeometry args={[1, 4, 8]} />
           <meshStandardMaterial {...materialProps} />
           {data.map((props, i) => <Instance key={i} {...props} />)}
@@ -43,27 +52,23 @@ const FloraZone = ({ range, color, type }: FloraProps) => {
       );
     case 'tall_tree': // Cylinder
       return (
-        <Instances range={COUNT}>
+        <Instances range={COUNT} castShadow receiveShadow>
           <cylinderGeometry args={[0.5, 1, 8, 8]} />
           <meshStandardMaterial {...materialProps} />
           {data.map((props, i) => <Instance key={i} {...props} />)}
         </Instances>
       );
-    case 'groundsel': // Cylinder with Sphere top - composed?
-      // InstancedMesh only supports one geometry. We'll simulate with a specific shape or just use a group of two Instances?
-      // For simplicity/performance in this "meditative" app, let's use a unique shape.
-      // A capsule or just a cylinder for the stem and a sphere for the top.
-      // Actually, we can just use a Cylinder for now, maybe taper it.
+    case 'groundsel':
       return (
-        <Instances range={COUNT}>
-          <cylinderGeometry args={[0.8, 0.2, 6, 8]} />
+        <Instances range={COUNT} castShadow receiveShadow>
+          <capsuleGeometry args={[0.6, 2, 4, 8]} />
           <meshStandardMaterial {...materialProps} />
           {data.map((props, i) => <Instance key={i} {...props} />)}
         </Instances>
       );
     case 'rock': // Dodecahedron
       return (
-        <Instances range={COUNT}>
+        <Instances range={COUNT} castShadow receiveShadow>
           <dodecahedronGeometry args={[1.5, 0]} />
           <meshStandardMaterial {...materialProps} roughness={0.8} />
           {data.map((props, i) => <Instance key={i} {...props} />)}
@@ -71,7 +76,7 @@ const FloraZone = ({ range, color, type }: FloraProps) => {
       );
     case 'ice': // Octahedron
       return (
-        <Instances range={COUNT}>
+        <Instances range={COUNT} castShadow receiveShadow>
           <octahedronGeometry args={[1, 0]} />
           <meshPhysicalMaterial
             {...materialProps}

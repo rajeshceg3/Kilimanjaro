@@ -33,7 +33,14 @@ describe('UI Component', () => {
       useStore.setState({ altitude: 2000 });
     });
 
+    // Altitude updates immediately
     expect(screen.getByText('2000m')).toBeInTheDocument();
+
+    // Zone text has a transition delay of 1000ms
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+
     expect(screen.getByText('Rainforest Zone')).toBeInTheDocument();
   });
 

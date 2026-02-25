@@ -2,6 +2,7 @@ import { useFrame } from '@react-three/fiber';
 import { useStore } from '../store/useStore';
 import { MathUtils } from 'three';
 import { Atmosphere } from './Atmosphere';
+import { Sky } from './Sky';
 import { Flora } from './Flora';
 import { Particles } from './Particles';
 
@@ -29,6 +30,7 @@ export const Scene = () => {
   return (
     <>
       <Atmosphere />
+      <Sky />
       <ambientLight intensity={0.6} />
       <directionalLight position={[10, 20, 10]} intensity={1.2} castShadow />
 

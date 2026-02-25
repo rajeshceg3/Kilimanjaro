@@ -16,3 +16,11 @@
 - Implemented `Particles` component with altitude-dependent behavior (Rain, Mist, Wind, Snow) and camera wrapping logic.
 - Replaced `PlaceholderTerrain` with `Flora` and `Particles` in the main `Scene`.
 - Verified build and tests, fixing linting and TypeScript issues.
+
+## Session 3
+- Implemented Procedural Audio System (`AudioManager`) with Web Audio API, generating zone-specific soundscapes (Wind, Drones) and crossfading based on altitude.
+- Created `Sky` component with custom gradient shader and star field to enhance atmospheric depth, replacing simple background color.
+- Refined `Flora` with random 3D rotations for rocks/ice and used `CapsuleGeometry` for Groundsels.
+- Polished `UI` with smooth fade transitions for zone quotes.
+- Added comprehensive tests for new components and mocked `AudioContext` for JSDOM.
+- Verified frontend changes with Playwright screenshot.
