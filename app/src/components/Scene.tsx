@@ -5,6 +5,9 @@ import { Atmosphere } from './Atmosphere';
 import { Sky } from './Sky';
 import { Flora } from './Flora';
 import { Particles } from './Particles';
+import { Grass } from './ZoneDetails/Grass';
+import { Clouds } from './ZoneDetails/Clouds';
+import { Aurora } from './ZoneDetails/Aurora';
 
 export const Scene = () => {
   useFrame((state, delta) => {
@@ -36,6 +39,9 @@ export const Scene = () => {
 
       <Particles />
       <Flora />
+      <Grass />
+      <Clouds />
+      <Aurora />
     </>
   );
 };
