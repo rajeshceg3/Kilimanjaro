@@ -1,7 +1,7 @@
 import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Instances, Instance } from '@react-three/drei';
-import { MathUtils, DoubleSide, Color, AdditiveBlending } from 'three';
+import { MathUtils, DoubleSide, Color, AdditiveBlending, ShaderMaterial } from 'three';
 import { shaderMaterial } from '@react-three/drei';
 import { extend } from '@react-three/fiber';
 import type { ThreeElement } from '@react-three/fiber';
@@ -64,12 +64,12 @@ const SCALE_FACTOR = 0.1;
 const SPREAD = 100;
 
 export const Clouds = () => {
-  const materialRef = useRef<any>(null);
+  const materialRef = useRef<ShaderMaterial & { time: number }>(null);
 
   const data = useMemo(() => {
     return Array.from({ length: COUNT }).map(() => {
       // Distribute between Moorland and Summit
-      const isSummit = Math.random() > 0.6; // 40% in Summit
+      const isSummit = MathUtils.randFloat(0, 1) > 0.6; // 40% in Summit
       const range = isSummit ? RANGE_SUMMIT : RANGE_MOORLAND;
 
       const y = MathUtils.randFloat(range[0], range[1]) * SCALE_FACTOR;

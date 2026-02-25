@@ -1,7 +1,7 @@
 import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Instances, Instance } from '@react-three/drei';
-import { MathUtils, DoubleSide, Color } from 'three';
+import { MathUtils, DoubleSide, Color, ShaderMaterial } from 'three';
 import { shaderMaterial } from '@react-three/drei';
 import { extend } from '@react-three/fiber';
 import type { ThreeElement } from '@react-three/fiber';
@@ -58,7 +58,7 @@ const SCALE_FACTOR = 0.1;
 const SPREAD = 60;
 
 export const Grass = () => {
-  const materialRef = useRef<any>(null);
+  const materialRef = useRef<ShaderMaterial & { time: number }>(null);
 
   const data = useMemo(() => {
     return Array.from({ length: COUNT }).map(() => {

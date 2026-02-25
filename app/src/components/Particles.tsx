@@ -4,6 +4,12 @@ import { useStore } from '../store/useStore';
 import { getZoneAtAltitude } from '../config/zones';
 import { Color, AdditiveBlending, Points, MathUtils, PointsMaterial } from 'three';
 
+interface Shader {
+  uniforms: { [uniform: string]: { value: unknown } };
+  vertexShader: string;
+  fragmentShader: string;
+}
+
 const COUNT = 1500; // Increased count for better density
 const RADIUS = 30; // Increased radius
 
@@ -26,7 +32,7 @@ export const Particles = () => {
     return { positions: pos, scales: sc };
   });
 
-  const onBeforeCompile = useMemo(() => (shader: any) => {
+  const onBeforeCompile = useMemo(() => (shader: Shader) => {
     shader.fragmentShader = shader.fragmentShader.replace(
       'gl_FragColor = vec4( outgoingLight, diffuseColor.a );',
       `
