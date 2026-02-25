@@ -74,4 +74,5 @@ globalThis.AudioContext = class AudioContext {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 } as any;
 
-globalThis.webkitAudioContext = globalThis.AudioContext;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(globalThis as any).webkitAudioContext = globalThis.AudioContext;

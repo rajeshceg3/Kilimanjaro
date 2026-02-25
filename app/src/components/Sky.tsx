@@ -8,7 +8,7 @@ import { getZoneAtAltitude } from '../config/zones';
 // --- Custom Gradient Shader Material ---
 // We use extend to make it available as a JSX element
 import { extend } from '@react-three/fiber';
-import type { Object3DNode } from '@react-three/fiber';
+import type { ThreeElement } from '@react-three/fiber';
 
 const GradientSkyMaterial = shaderMaterial(
   {
@@ -44,7 +44,7 @@ extend({ GradientSkyMaterial });
 
 declare module '@react-three/fiber' {
   interface ThreeElements {
-    gradientSkyMaterial: Object3DNode<ShaderMaterial, typeof GradientSkyMaterial>;
+    gradientSkyMaterial: ThreeElement<typeof GradientSkyMaterial>;
   }
 }
 
