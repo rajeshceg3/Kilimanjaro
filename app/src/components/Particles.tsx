@@ -1,11 +1,17 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useStore } from '../store/useStore';
 import { getZoneAtAltitude } from '../config/zones';
 import { Color, AdditiveBlending, Points, MathUtils, PointsMaterial } from 'three';
 
-const COUNT = 1000;
-const RADIUS = 20; // Spread radius around camera
+interface Shader {
+  uniforms: { [uniform: string]: { value: unknown } };
+  vertexShader: string;
+  fragmentShader: string;
+}
+
+const COUNT = 1500; // Increased count for better density
+const RADIUS = 30; // Increased radius
 
 export const Particles = () => {
   const pointsRef = useRef<Points>(null);
@@ -26,6 +32,19 @@ export const Particles = () => {
     return { positions: pos, scales: sc };
   });
 
+  const onBeforeCompile = useMemo(() => (shader: Shader) => {
+    shader.fragmentShader = shader.fragmentShader.replace(
+      'gl_FragColor = vec4( outgoingLight, diffuseColor.a );',
+      `
+      vec2 coord = gl_PointCoord - vec2(0.5);
+      if(length(coord) > 0.5) discard;
+      float strength = 1.0 - (length(coord) * 2.0); // Soft edge
+      strength = pow(strength, 0.5);
+      gl_FragColor = vec4( outgoingLight, diffuseColor.a * strength );
+      `
+    );
+  }, []);
+
   useFrame((state, delta) => {
     if (!pointsRef.current) return;
 
@@ -34,33 +53,42 @@ export const Particles = () => {
     const cameraY = state.camera.position.y;
 
     // Determine behavior based on zone
-    let speedY = -2.0; // Default drop speed
+    let speedY = -2.0;
     let speedX = 0;
     let size = 0.05;
     let opacity = 0.5;
 
-    // Mapping behavior to zones (simplified logic)
+    // Mapping behavior to zones
     if (zone.name.includes("Cultivation")) {
-      speedY = -0.5;
-      speedX = 0.2;
-      opacity = 0.2; // Pollen
-    } else if (zone.name.includes("Rainforest")) {
-      speedY = -4.0;
-      speedX = 0.1;
-      opacity = 0.4; // Mist/Rain
-    } else if (zone.name.includes("Moorland")) {
-      speedY = -1.0;
-      speedX = 1.5; // Wind
-      opacity = 0.3;
-    } else if (zone.name.includes("Alpine")) {
+      // Pollen / Insects
       speedY = -0.2;
-      speedX = 0.5; // Dust
-      opacity = 0.2;
-    } else if (zone.name.includes("Summit")) {
-      speedY = -0.5;
-      speedX = 0.2; // Snow
-      opacity = 0.6;
+      speedX = 0.1;
+      opacity = 0.3;
       size = 0.08;
+    } else if (zone.name.includes("Rainforest")) {
+      // Heavy Mist / Droplets
+      speedY = -0.5;
+      speedX = 0.05;
+      opacity = 0.4;
+      size = 0.06;
+    } else if (zone.name.includes("Moorland")) {
+      // Wind / Thin Air
+      speedY = -0.1;
+      speedX = 0.8;
+      opacity = 0.2;
+      size = 0.04;
+    } else if (zone.name.includes("Alpine")) {
+      // Dust
+      speedY = -0.1;
+      speedX = 0.2;
+      opacity = 0.15;
+      size = 0.03;
+    } else if (zone.name.includes("Summit")) {
+      // Snow / Ice Crystals
+      speedY = -0.8;
+      speedX = 0.3;
+      opacity = 0.7;
+      size = 0.1;
     }
 
     const currentPositions = pointsRef.current.geometry.attributes.position.array as Float32Array;
@@ -74,6 +102,10 @@ export const Particles = () => {
       y += speedY * delta;
       x += speedX * delta;
 
+      // Slight noise
+      x += (Math.random() - 0.5) * 0.01;
+      z += (Math.random() - 0.5) * 0.01;
+
       // Wrap around logic relative to CAMERA position
       // We want particles to stay within [cameraY - RADIUS, cameraY + RADIUS]
       if (y < cameraY - RADIUS) {
@@ -81,8 +113,19 @@ export const Particles = () => {
         x = (Math.random() - 0.5) * RADIUS * 2; // Reset X to keep distribution
         z = (Math.random() - 0.5) * RADIUS * 2; // Reset Z
       }
+      // Also check if too high above
+      if (y > cameraY + RADIUS) {
+         y = cameraY - RADIUS;
+         x = (Math.random() - 0.5) * RADIUS * 2;
+         z = (Math.random() - 0.5) * RADIUS * 2;
+      }
+
       if (x > RADIUS) x = -RADIUS;
       if (x < -RADIUS) x = RADIUS;
+
+      // Z Wrap
+      if (z > RADIUS) z = -RADIUS;
+      if (z < -RADIUS) z = RADIUS;
 
       currentPositions[i * 3] = x;
       currentPositions[i * 3 + 1] = y;
@@ -119,6 +162,7 @@ export const Particles = () => {
         opacity={0.5}
         blending={AdditiveBlending}
         depthWrite={false}
+        onBeforeCompile={onBeforeCompile}
       />
     </points>
   );

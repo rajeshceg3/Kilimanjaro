@@ -24,3 +24,12 @@
 - Polished `UI` with smooth fade transitions for zone quotes.
 - Added comprehensive tests for new components and mocked `AudioContext` for JSDOM.
 - Verified frontend changes with Playwright screenshot.
+
+## Session 4
+- Implemented `ZoneDetails` components to enhance environmental realism:
+  - `Grass`: Instanced swaying grass blades for the Cultivation Zone.
+  - `Clouds`: Soft, drifting instanced clouds for Moorland and Summit Zones.
+  - `Aurora`: Animated shader-based aurora borealis for the Summit Zone.
+- Enhanced `Particles` system with `onBeforeCompile` shader modification to render soft circular particles instead of squares, and refined zone-specific behaviors (pollen, mist, wind, dust, snow).
+- Resolved R3F/Three.js namespace issues with custom shader materials (`extend`).
+- Verified visual fidelity across all zones using Playwright screenshots.
