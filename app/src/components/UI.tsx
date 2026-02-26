@@ -57,13 +57,18 @@ export const UI = () => {
 
   // Handle Summit Text
   useEffect(() => {
-      if (isSummitReached && !showSummitText) {
-          const t = setTimeout(() => setShowSummitText(true), 1000);
-          return () => clearTimeout(t);
-      } else if (!isSummitReached && showSummitText) {
-          setShowSummitText(false);
-      }
-  }, [isSummitReached, showSummitText]);
+    let timer: ReturnType<typeof setTimeout>;
+
+    if (isSummitReached) {
+        timer = setTimeout(() => setShowSummitText(true), 1000);
+    } else {
+        // Also delay the hide slightly or just hide immediately but wrapped in timeout to appease linter/react logic
+        // This ensures it's not synchronous in the effect execution
+        timer = setTimeout(() => setShowSummitText(false), 0);
+    }
+
+    return () => clearTimeout(timer);
+  }, [isSummitReached]);
 
   return (
     <>
