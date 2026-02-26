@@ -12,6 +12,10 @@ export const UI = () => {
   const [displayZone, setDisplayZone] = useState(currentZone);
   const [fadeZone, setFadeZone] = useState(true);
 
+  // Summit Specifics
+  const isSummitReached = altitude >= 5890;
+  const [showSummitText, setShowSummitText] = useState(false);
+
   // Handle visibility based on activity
   useEffect(() => {
     let timeout: ReturnType<typeof setTimeout>;
@@ -34,7 +38,6 @@ export const UI = () => {
   }, []);
 
   // Handle zone text transition
-  // We use a ref to prevent unnecessary re-renders or effect loops
   const prevZoneName = useRef(currentZone.name);
 
   useEffect(() => {
@@ -52,28 +55,57 @@ export const UI = () => {
     }
   }, [currentZone]);
 
+  // Handle Summit Text
+  useEffect(() => {
+      if (isSummitReached && !showSummitText) {
+          const t = setTimeout(() => setShowSummitText(true), 1000);
+          return () => clearTimeout(t);
+      } else if (!isSummitReached && showSummitText) {
+          setShowSummitText(false);
+      }
+  }, [isSummitReached, showSummitText]);
+
   return (
-    <div className={`fixed inset-0 pointer-events-none transition-opacity duration-1000 ${visible ? 'opacity-100' : 'opacity-0'}`}>
-      <div className="absolute top-8 left-8 text-white font-light tracking-widest mix-blend-difference">
-        <h1 className="text-xs opacity-50 uppercase">Altitude</h1>
-        <p className="text-4xl font-thin">{altitude}m</p>
-      </div>
+    <>
+        {/* Normal UI Overlay - Fades out at very top to reveal Summit Text cleanly, or stays? PRD says "Faint text fades in... Then it dissolves." */}
+        {/* Let's keep the Altitude meter but maybe hide the zone text if Summit Reached? */}
 
-      <div className={`absolute bottom-20 w-full text-center text-white px-4 mix-blend-difference transition-opacity duration-1000 ${fadeZone ? 'opacity-100' : 'opacity-0'}`}>
-        <h2 className="text-xl md:text-2xl font-light tracking-widest mb-2 uppercase">
-          {displayZone.name}
-        </h2>
-        <p className="text-sm md:text-base opacity-70 italic max-w-md mx-auto font-serif">
-          "{displayZone.quote}"
-        </p>
-      </div>
+        <div className={`fixed inset-0 pointer-events-none transition-opacity duration-1000 ${visible ? 'opacity-100' : 'opacity-0'}`}>
+            <div className="absolute top-8 left-8 text-white font-light tracking-widest mix-blend-difference">
+                <h1 className="text-xs opacity-50 uppercase">Altitude</h1>
+                <p className="text-4xl font-thin">{altitude}m</p>
+            </div>
 
-      {/* Simple scroll indicator if at start */}
-      {altitude < 850 && (
-         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white text-xs opacity-50 animate-bounce tracking-widest uppercase">
-            Scroll to Ascend
-         </div>
-      )}
-    </div>
+            {/* Zone Info - Hidden at very summit to show special text */}
+            <div className={`absolute bottom-20 w-full text-center text-white px-4 mix-blend-difference transition-opacity duration-1000 ${fadeZone && !showSummitText ? 'opacity-100' : 'opacity-0'}`}>
+                <h2 className="text-xl md:text-2xl font-light tracking-widest mb-2 uppercase">
+                {displayZone.name}
+                </h2>
+                <p className="text-sm md:text-base opacity-70 italic max-w-md mx-auto font-serif">
+                "{displayZone.quote}"
+                </p>
+            </div>
+
+            {/* Simple scroll indicator if at start */}
+            {altitude < 850 && (
+                <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white text-xs opacity-50 animate-bounce tracking-widest uppercase">
+                    Scroll to Ascend
+                </div>
+            )}
+        </div>
+
+        {/* Summit Special Text - Centered */}
+        <div className={`fixed inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-2000 ${showSummitText ? 'opacity-100' : 'opacity-0'}`}>
+            <div className="text-center text-white mix-blend-difference px-6">
+                <p className="text-2xl md:text-3xl font-light tracking-widest mb-4 font-serif italic">
+                    "You are standing above weather."
+                </p>
+                <div className="w-16 h-px bg-white mx-auto opacity-50 mb-4"></div>
+                <p className="text-xs uppercase tracking-[0.3em] opacity-60">
+                    Uhuru Peak · 5,895m
+                </p>
+            </div>
+        </div>
+    </>
   );
 };

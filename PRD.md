@@ -1,6 +1,6 @@
 🏔️ Mount Kilimanjaro
 
-## Project Status: 40% Complete
+## Project Status: 80% Complete
 
 ---
 
