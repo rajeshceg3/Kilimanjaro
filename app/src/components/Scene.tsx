@@ -8,6 +8,7 @@ import { Particles } from './Particles';
 import { Grass } from './ZoneDetails/Grass';
 import { Clouds } from './ZoneDetails/Clouds';
 import { Aurora } from './ZoneDetails/Aurora';
+import { Glacier } from './ZoneDetails/Glacier';
 
 export const Scene = () => {
   useFrame((state, delta) => {
@@ -15,8 +16,17 @@ export const Scene = () => {
     const targetAltitude = useStore.getState().targetAltitude;
     const setAltitude = useStore.getState().setAltitude;
 
+    // Calculate smoothing factor based on altitude
+    // Lower altitude = faster/normal (2.0)
+    // Higher altitude = slower/heavier (0.5)
+    const smoothingFactor = MathUtils.mapLinear(
+        Math.min(altitude, 6000),
+        800, 6000,
+        2.0, 0.5
+    );
+
     // Smooth interpolation
-    const smoothedAltitude = MathUtils.lerp(altitude, targetAltitude, delta * 2);
+    const smoothedAltitude = MathUtils.lerp(altitude, targetAltitude, delta * smoothingFactor);
 
     if (Math.abs(smoothedAltitude - altitude) > 0.01) {
       setAltitude(smoothedAltitude);
@@ -41,6 +51,7 @@ export const Scene = () => {
       <Flora />
       <Grass />
       <Clouds />
+      <Glacier />
       <Aurora />
     </>
   );

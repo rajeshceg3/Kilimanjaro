@@ -35,7 +35,11 @@ test.describe('Mount Kilimanjaro Journey', () => {
     await page.mouse.wheel(0, 15000);
 
     await expect(page.getByText('Arctic Summit')).toBeVisible({ timeout: 15000 });
-    await expect(page.getByText('"You are standing above weather."')).toBeVisible();
+
+    // Check for the summit-specific text.
+    // We target the summit UI specifically to avoid ambiguity if the zone quote is still fading out
+    const summitContainer = page.getByTestId('summit-ui');
+    await expect(summitContainer.getByText('"You are standing above weather."')).toBeVisible();
   });
 
   test('UI fades out and reappears', async ({ page }) => {
@@ -50,7 +54,9 @@ test.describe('Mount Kilimanjaro Journey', () => {
 
     // Check opacity using CSS class
     // We need to find the parent container of 'Altitude' text
-    const container = page.locator('div.fixed.inset-0');
+    // The previous locator 'div.fixed.inset-0' was ambiguous.
+    // We added data-testid="main-ui" to the main container.
+    const container = page.getByTestId('main-ui');
     await expect(container).toHaveClass(/opacity-0/);
 
     // Scroll to trigger reappear

@@ -33,3 +33,10 @@
 - Enhanced `Particles` system with `onBeforeCompile` shader modification to render soft circular particles instead of squares, and refined zone-specific behaviors (pollen, mist, wind, dust, snow).
 - Resolved R3F/Three.js namespace issues with custom shader materials (`extend`).
 - Verified visual fidelity across all zones using Playwright screenshots.
+
+## Session 5
+- Implemented `Glacier` component for the Summit Zone (5000m+) using a custom shader with refractive, icy visuals and internal noise.
+- Refined `Clouds` component with improved shader for fluffier, softer appearance and better distribution.
+- Implemented altitude-dependent camera inertia in `Scene.tsx`, slowing movement at higher altitudes to simulate physical exertion/thin air.
+- Enhanced `UI` with a dedicated summit ending sequence, fading out zone info and displaying "You are standing above weather" at Uhuru Peak.
+- Verified components via unit tests (all passed) and attempted E2E verification (basic rendering confirmed).
