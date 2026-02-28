@@ -1,7 +1,8 @@
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { DoubleSide, Color, ShaderMaterial, FrontSide } from 'three';
+import { DoubleSide, Color, ShaderMaterial, FrontSide, CylinderGeometry, IcosahedronGeometry } from 'three';
 import { shaderMaterial } from '@react-three/drei';
+import { createOrganicGeometry } from '../../utils/geometry';
 import { extend } from '@react-three/fiber';
 import type { ThreeElement } from '@react-three/fiber';
 
@@ -81,11 +82,14 @@ export const Glacier = () => {
     }
   });
 
+  const wallGeo = useMemo(() => createOrganicGeometry(new CylinderGeometry(200, 200, 100, 64, 16, true), 10.0, 0.05), []);
+  const chunk1Geo = useMemo(() => createOrganicGeometry(new IcosahedronGeometry(15, 4), 3.0, 0.5), []);
+  const chunk2Geo = useMemo(() => createOrganicGeometry(new IcosahedronGeometry(20, 4), 4.0, 0.5), []);
+
   return (
     <group position={[0, 560, 0]}>
       {/* Background Wall - Cylinder */}
-      <mesh position={[0, 0, 0]} rotation={[0, 0, 0]}>
-        <cylinderGeometry args={[200, 200, 100, 32, 1, true]} />
+      <mesh position={[0, 0, 0]} rotation={[0, 0, 0]} geometry={wallGeo}>
         <glacierMaterial
             ref={materialRef}
             side={DoubleSide}
@@ -95,13 +99,11 @@ export const Glacier = () => {
       </mesh>
 
       {/* Inner random chunks */}
-       <mesh position={[40, -20, -20]} rotation={[0.2, 0.5, 0]}>
-        <dodecahedronGeometry args={[15, 0]} />
+       <mesh position={[40, -20, -20]} rotation={[0.2, 0.5, 0]} geometry={chunk1Geo}>
          <glacierMaterial side={FrontSide} transparent depthWrite={false} />
       </mesh>
 
-       <mesh position={[-50, 10, -10]} rotation={[-0.2, -0.3, 0]}>
-        <icosahedronGeometry args={[20, 0]} />
+       <mesh position={[-50, 10, -10]} rotation={[-0.2, -0.3, 0]} geometry={chunk2Geo}>
          <glacierMaterial side={FrontSide} transparent depthWrite={false} />
       </mesh>
     </group>

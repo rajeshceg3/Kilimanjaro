@@ -21,6 +21,7 @@
     "playwright": "^1.58.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "simplex-noise": "^4.0.3",
     "tailwind-merge": "^3.5.0",
     "three": "^0.183.1",
     "tsx": "^4.21.0",
