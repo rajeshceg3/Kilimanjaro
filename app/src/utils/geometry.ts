@@ -1,4 +1,4 @@
-import { BufferGeometry, Float32BufferAttribute } from 'three';
+import { BufferGeometry } from 'three';
 import { createNoise3D } from 'simplex-noise';
 
 const noise3D = createNoise3D();
