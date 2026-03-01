@@ -1,6 +1,7 @@
 import { Instance, Instances } from '@react-three/drei';
 import { useMemo } from 'react';
-import { DoubleSide, MathUtils } from 'three';
+import { DoubleSide, MathUtils, IcosahedronGeometry, CapsuleGeometry, CylinderGeometry } from 'three';
+import { createOrganicGeometry } from '../utils/geometry';
 
 const COUNT = 300; // Number of instances per zone
 const SPREAD = 80; // Horizontal spread
@@ -41,43 +42,45 @@ const FloraZone = ({ range, color, type }: FloraProps) => {
 
   const materialProps = { color, side: DoubleSide };
 
+  // Pre-compute geometries
+  const treeGeo = useMemo(() => createOrganicGeometry(new CylinderGeometry(0.1, 1.5, 4, 16, 4), 0.3, 1.0), []);
+  const tallTreeGeo = useMemo(() => createOrganicGeometry(new CylinderGeometry(0.8, 1.2, 8, 16, 4), 0.5, 0.8), []);
+  const groundselGeo = useMemo(() => createOrganicGeometry(new CapsuleGeometry(0.6, 2, 16, 16), 0.4, 2.0), []);
+  const rockGeo = useMemo(() => createOrganicGeometry(new IcosahedronGeometry(1.5, 2), 0.8, 1.5), []);
+  const iceGeo = useMemo(() => createOrganicGeometry(new IcosahedronGeometry(1.5, 2), 0.5, 2.0), []);
+
   switch (type) {
-    case 'tree': // Cone
+    case 'tree':
       return (
-        <Instances range={COUNT} castShadow receiveShadow>
-          <coneGeometry args={[1, 4, 8]} />
+        <Instances range={COUNT} castShadow receiveShadow geometry={treeGeo}>
           <meshStandardMaterial {...materialProps} />
           {data.map((props, i) => <Instance key={i} {...props} />)}
         </Instances>
       );
-    case 'tall_tree': // Cylinder
+    case 'tall_tree':
       return (
-        <Instances range={COUNT} castShadow receiveShadow>
-          <cylinderGeometry args={[0.5, 1, 8, 8]} />
+        <Instances range={COUNT} castShadow receiveShadow geometry={tallTreeGeo}>
           <meshStandardMaterial {...materialProps} />
           {data.map((props, i) => <Instance key={i} {...props} />)}
         </Instances>
       );
     case 'groundsel':
       return (
-        <Instances range={COUNT} castShadow receiveShadow>
-          <capsuleGeometry args={[0.6, 2, 4, 8]} />
+        <Instances range={COUNT} castShadow receiveShadow geometry={groundselGeo}>
           <meshStandardMaterial {...materialProps} />
           {data.map((props, i) => <Instance key={i} {...props} />)}
         </Instances>
       );
-    case 'rock': // Dodecahedron
+    case 'rock':
       return (
-        <Instances range={COUNT} castShadow receiveShadow>
-          <dodecahedronGeometry args={[1.5, 0]} />
+        <Instances range={COUNT} castShadow receiveShadow geometry={rockGeo}>
           <meshStandardMaterial {...materialProps} roughness={0.8} />
           {data.map((props, i) => <Instance key={i} {...props} />)}
         </Instances>
       );
-    case 'ice': // Octahedron
+    case 'ice':
       return (
-        <Instances range={COUNT} castShadow receiveShadow>
-          <octahedronGeometry args={[1, 0]} />
+        <Instances range={COUNT} castShadow receiveShadow geometry={iceGeo}>
           <meshPhysicalMaterial
             {...materialProps}
             transmission={0.6}

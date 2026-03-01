@@ -31,15 +31,17 @@ test.describe('Mount Kilimanjaro Journey', () => {
     // Max altitude 6000. Start 800. Delta 5200.
     // Need wheel delta ~ 10400.
 
-    // Scroll in steps to simulate journey
-    await page.mouse.wheel(0, 15000);
+    // Scroll in steps to simulate journey. We scroll multiple times to ensure we hit it consistently.
+    for (let i = 0; i < 10; i++) {
+        await page.mouse.wheel(0, 5000);
+        await page.waitForTimeout(300); // Give time for interpolation
+    }
 
-    await expect(page.getByText('Arctic Summit')).toBeVisible({ timeout: 15000 });
-
-    // Check for the summit-specific text.
-    // We target the summit UI specifically to avoid ambiguity if the zone quote is still fading out
+    // Since the main UI disappears when showSummitText is true,
+    // "Arctic Summit" might not be visible if we reach the summit quickly.
+    // We should directly look for the summit text.
     const summitContainer = page.getByTestId('summit-ui');
-    await expect(summitContainer.getByText('"You are standing above weather."')).toBeVisible();
+    await expect(summitContainer.getByText('"You are standing above weather."')).toBeVisible({ timeout: 15000 });
   });
 
   test('UI fades out and reappears', async ({ page }) => {
