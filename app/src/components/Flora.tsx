@@ -1,8 +1,16 @@
 import { Instance, Instances } from '@react-three/drei';
 import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { DoubleSide, MathUtils, IcosahedronGeometry, CylinderGeometry, ConeGeometry, MeshStandardMaterial, MeshPhysicalMaterial } from 'three';
+import { DoubleSide, MathUtils, IcosahedronGeometry, CylinderGeometry, ConeGeometry, MeshStandardMaterial } from 'three';
 import { createOrganicGeometry } from '../utils/geometry';
+
+// Define a local interface for the shader object to satisfy TypeScript,
+// since 'three' doesn't export a 'Shader' type directly.
+interface WebGLProgramParametersWithUniforms {
+  uniforms: { [uniform: string]: { value: unknown } };
+  vertexShader: string;
+  fragmentShader: string;
+}
 
 // ==========================================
 // 1. FLORA SCENE ASSEMBLY
@@ -18,7 +26,7 @@ interface FloraProps {
 }
 
 const FloraZone = ({ range, type }: FloraProps) => {
-  const materialRef = useRef<any>(null);
+  const materialRef = useRef<MeshStandardMaterial>(null);
 
   useFrame((state) => {
     if (materialRef.current && materialRef.current.userData.shader) {
@@ -131,7 +139,7 @@ const FloraZone = ({ range, type }: FloraProps) => {
   }, [type]);
 
   // Shared callback for foliage wind sway
-  const onBeforeCompileFoliage = (shader: any) => {
+  const onBeforeCompileFoliage = (shader: WebGLProgramParametersWithUniforms) => {
     shader.uniforms.time = { value: 0 };
     shader.vertexShader = `
       uniform float time;
@@ -163,7 +171,7 @@ const FloraZone = ({ range, type }: FloraProps) => {
                 color={part.color}
                 roughness={part.roughness}
                 side={DoubleSide}
-                onBeforeCompile={onBeforeCompileFoliage}
+                onBeforeCompile={(shader) => onBeforeCompileFoliage(shader as WebGLProgramParametersWithUniforms)}
              />
           )}
           {part.matType === 'standard' && (

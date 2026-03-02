@@ -1,8 +1,7 @@
 import { BufferGeometry } from 'three';
-import { createNoise3D, createNoise2D } from 'simplex-noise';
+import { createNoise3D } from 'simplex-noise';
 
 const noise3D = createNoise3D();
-const noise2D = createNoise2D();
 
 /**
  * Perturbs the vertices of a given geometry using multi-octave simplex noise to make it look organic, without sharp spikes.
