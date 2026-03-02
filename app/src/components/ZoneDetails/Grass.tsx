@@ -1,56 +1,7 @@
 import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Instances, Instance } from '@react-three/drei';
-import { MathUtils, DoubleSide, Color, ShaderMaterial } from 'three';
-import { shaderMaterial } from '@react-three/drei';
-import { extend } from '@react-three/fiber';
-import type { ThreeElement } from '@react-three/fiber';
-
-// --- Grass Material Shader ---
-const GrassMaterial = shaderMaterial(
-  {
-    time: 0,
-    color: new Color('#4a6741'),
-  },
-  // Vertex Shader
-  `
-    varying vec2 vUv;
-    uniform float time;
-
-    void main() {
-      vUv = uv;
-      vec3 pos = position;
-
-      // Simple wind sway
-      // Only move the top of the blade (y > 0)
-      if (pos.y > 0.0) {
-        float sway = sin(time * 2.0 + instanceMatrix[3].x * 0.5) * 0.2; // instanceMatrix[3].x is world x position
-        pos.x += sway * pos.y; // Sway more at the tip
-      }
-
-      gl_Position = projectionMatrix * modelViewMatrix * instanceMatrix * vec4(pos, 1.0);
-    }
-  `,
-  // Fragment Shader
-  `
-    varying vec2 vUv;
-    uniform vec3 color;
-
-    void main() {
-      // Simple gradient on the blade
-      vec3 finalColor = mix(color * 0.5, color, vUv.y);
-      gl_FragColor = vec4(finalColor, 1.0);
-    }
-  `
-);
-
-extend({ GrassMaterial });
-
-declare module '@react-three/fiber' {
-  interface ThreeElements {
-    grassMaterial: ThreeElement<typeof GrassMaterial>;
-  }
-}
+import { MathUtils, DoubleSide, MeshStandardMaterial } from 'three';
 
 const COUNT = 1000;
 const RANGE_Y: [number, number] = [800, 1800]; // Cultivation Zone
@@ -58,7 +9,7 @@ const SCALE_FACTOR = 0.1;
 const SPREAD = 60;
 
 export const Grass = () => {
-  const materialRef = useRef<ShaderMaterial & { time: number }>(null);
+  const materialRef = useRef<MeshStandardMaterial>(null);
 
   const data = useMemo(() => {
     return Array.from({ length: COUNT }).map(() => {
@@ -74,15 +25,51 @@ export const Grass = () => {
   }, []);
 
   useFrame((state) => {
-    if (materialRef.current) {
-      materialRef.current.time = state.clock.elapsedTime;
+    if (materialRef.current && materialRef.current.userData.shader) {
+      materialRef.current.userData.shader.uniforms.time.value = state.clock.elapsedTime;
     }
   });
 
   return (
-    <Instances range={COUNT}>
+    <Instances range={COUNT} castShadow receiveShadow>
       <planeGeometry args={[0.5, 2, 1, 4]} /> {/* Width, Height, SegmentsX, SegmentsY (need Y segs for bend) */}
-      <grassMaterial ref={materialRef} side={DoubleSide} />
+      <meshStandardMaterial
+        ref={materialRef}
+        side={DoubleSide}
+        color="#4a6741"
+        roughness={0.8}
+        onBeforeCompile={(shader) => {
+          shader.uniforms.time = { value: 0 };
+          shader.vertexShader = `
+            uniform float time;
+            ${shader.vertexShader}
+          `;
+          shader.vertexShader = shader.vertexShader.replace(
+            `#include <begin_vertex>`,
+            `
+            #include <begin_vertex>
+            // Simple wind sway based on world position (instanceMatrix[3].x)
+            if (position.y > 0.0) {
+              float sway = sin(time * 2.0 + instanceMatrix[3].x * 0.5) * 0.2;
+              transformed.x += sway * position.y; // Sway more at the tip
+            }
+            `
+          );
+
+          // Add gradient logic based on UV
+          shader.fragmentShader = shader.fragmentShader.replace(
+            `#include <color_fragment>`,
+            `
+            #include <color_fragment>
+            diffuseColor.rgb = mix(diffuseColor.rgb * 0.5, diffuseColor.rgb, vUv.y);
+            `
+          );
+
+          if (materialRef.current) {
+            materialRef.current.userData.shader = shader;
+          }
+        }}
+      />
       {data.map((props, i) => (
         <Instance key={i} {...props} />
       ))}
