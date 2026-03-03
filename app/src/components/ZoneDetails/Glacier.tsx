@@ -82,9 +82,9 @@ export const Glacier = () => {
     }
   });
 
-  const wallGeo = useMemo(() => createOrganicGeometry(new CylinderGeometry(200, 200, 100, 64, 16, true), 10.0, 0.05), []);
-  const chunk1Geo = useMemo(() => createOrganicGeometry(new IcosahedronGeometry(15, 4), 3.0, 0.5), []);
-  const chunk2Geo = useMemo(() => createOrganicGeometry(new IcosahedronGeometry(20, 4), 4.0, 0.5), []);
+  const wallGeo = useMemo(() => createOrganicGeometry(new CylinderGeometry(200, 200, 100, 128, 32, true), 10.0, 0.05), []);
+  const chunk1Geo = useMemo(() => createOrganicGeometry(new IcosahedronGeometry(15, 16), 3.0, 0.5), []);
+  const chunk2Geo = useMemo(() => createOrganicGeometry(new IcosahedronGeometry(20, 16), 4.0, 0.5), []);
 
   return (
     <group position={[0, 560, 0]}>
