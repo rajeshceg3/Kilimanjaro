@@ -66,11 +66,11 @@ const FloraZone = ({ range, type }: FloraProps) => {
         trunkGeo.translate(0, 1.5, 0);
 
         // High res for smooth normals
-        const crownGeo = new IcosahedronGeometry(2.5, 12);
+        let crownGeo = new IcosahedronGeometry(2.5, 12);
         crownGeo.scale(1, 0.5, 1);
         crownGeo.translate(0, 3.0, 0);
         // Soft displacement to make it organic, not spiky
-        createOrganicGeometry(crownGeo, 0.5, 1.5);
+        crownGeo = createOrganicGeometry(crownGeo, 0.5, 1.5) as IcosahedronGeometry;
 
         return {
           parts: [
@@ -83,10 +83,10 @@ const FloraZone = ({ range, type }: FloraProps) => {
         const trunkGeo = new CylinderGeometry(0.3, 0.6, 8, 16, 4);
         trunkGeo.translate(0, 4, 0);
 
-        const crownGeo = new IcosahedronGeometry(3.5, 12);
+        let crownGeo = new IcosahedronGeometry(3.5, 12);
         crownGeo.scale(1, 0.8, 1);
         crownGeo.translate(0, 8, 0);
-        createOrganicGeometry(crownGeo, 0.8, 1.2);
+        crownGeo = createOrganicGeometry(crownGeo, 0.8, 1.2) as IcosahedronGeometry;
 
         return {
           parts: [
@@ -96,14 +96,14 @@ const FloraZone = ({ range, type }: FloraProps) => {
         };
       }
       case 'groundsel': {
-        const trunkGeo = new CylinderGeometry(0.4, 0.6, 2.5, 16, 8);
+        let trunkGeo = new CylinderGeometry(0.4, 0.6, 2.5, 16, 8);
         trunkGeo.translate(0, 1.25, 0);
-        createOrganicGeometry(trunkGeo, 0.2, 3.0);
+        trunkGeo = createOrganicGeometry(trunkGeo, 0.2, 3.0) as CylinderGeometry;
 
-        const crownGeo = new ConeGeometry(1.8, 2.5, 32, 16);
+        let crownGeo = new ConeGeometry(1.8, 2.5, 32, 16);
         crownGeo.translate(0, 3.0, 0);
         // Moderate displacement for the spiky rosette
-        createOrganicGeometry(crownGeo, 0.6, 2.0);
+        crownGeo = createOrganicGeometry(crownGeo, 0.6, 2.0) as ConeGeometry;
 
         return {
           parts: [
@@ -113,9 +113,9 @@ const FloraZone = ({ range, type }: FloraProps) => {
         };
       }
       case 'rock': {
-        const rockGeo = new IcosahedronGeometry(2.5, 16);
+        let rockGeo = new IcosahedronGeometry(2.5, 16);
         // Higher res, smoother crags
-        createOrganicGeometry(rockGeo, 1.0, 1.0);
+        rockGeo = createOrganicGeometry(rockGeo, 1.0, 1.0) as IcosahedronGeometry;
 
         return {
           parts: [
@@ -124,8 +124,8 @@ const FloraZone = ({ range, type }: FloraProps) => {
         };
       }
       case 'ice': {
-        const iceGeo = new IcosahedronGeometry(2.5, 16);
-        createOrganicGeometry(iceGeo, 0.8, 1.5);
+        let iceGeo = new IcosahedronGeometry(2.5, 16);
+        iceGeo = createOrganicGeometry(iceGeo, 0.8, 1.5) as IcosahedronGeometry;
 
         return {
           parts: [
