@@ -1,5 +1,6 @@
 import { BufferGeometry } from 'three';
 import { createNoise3D } from 'simplex-noise';
+import { mergeVertices } from 'three-stdlib';
 
 const noise3D = createNoise3D();
 
@@ -8,24 +9,26 @@ const noise3D = createNoise3D();
  * @param geometry The base BufferGeometry to modify
  * @param noiseAmplitude How much to displace the vertices (scaled down relative to volume)
  * @param noiseFrequency How detailed the noise should be
- * @returns The modified geometry (modifies in place)
+ * @returns The modified geometry (modifies in place or returns new merged geometry)
  */
 export function createOrganicGeometry(
   geometry: BufferGeometry,
   noiseAmplitude: number = 0.5,
   noiseFrequency: number = 1.0
 ): BufferGeometry {
-  const positionAttribute = geometry.getAttribute('position');
+  // Merge vertices to ensure shared vertices for smooth normals across faces
+  const mergedGeo = mergeVertices(geometry);
+  const positionAttribute = mergedGeo.getAttribute('position');
 
   if (!positionAttribute) {
-    return geometry;
+    return mergedGeo;
   }
 
   const vertex = new Float32Array(3);
 
   // Compute bounding sphere radius to normalize noise relative to object size
-  geometry.computeBoundingSphere();
-  const radius = geometry.boundingSphere?.radius || 1.0;
+  mergedGeo.computeBoundingSphere();
+  const radius = mergedGeo.boundingSphere?.radius || 1.0;
 
   for (let i = 0; i < positionAttribute.count; i++) {
     vertex[0] = positionAttribute.getX(i);
@@ -67,8 +70,8 @@ export function createOrganicGeometry(
   }
 
   // Ensure normal updates if lighting is used
-  geometry.computeVertexNormals();
+  mergedGeo.computeVertexNormals();
   positionAttribute.needsUpdate = true;
 
-  return geometry;
+  return mergedGeo;
 }
