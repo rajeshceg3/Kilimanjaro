@@ -9,6 +9,7 @@ import { Grass } from './ZoneDetails/Grass';
 import { Clouds } from './ZoneDetails/Clouds';
 import { Aurora } from './ZoneDetails/Aurora';
 import { Glacier } from './ZoneDetails/Glacier';
+import { Terrain } from './Terrain';
 
 export const Scene = () => {
   useFrame((state, delta) => {
@@ -48,6 +49,7 @@ export const Scene = () => {
       <directionalLight position={[10, 20, 10]} intensity={1.2} castShadow />
 
       <Particles />
+      <Terrain />
       <Flora />
       <Grass />
       <Clouds />
