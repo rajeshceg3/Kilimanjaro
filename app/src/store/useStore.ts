@@ -15,6 +15,12 @@ export const useStore = create<State>((set) => ({
 }));
 
 // Expose store to window for E2E tests to bypass rendering lag
+declare global {
+  interface Window {
+    useStore?: typeof useStore;
+  }
+}
+
 if (typeof window !== 'undefined') {
-  (window as any).useStore = useStore;
+  window.useStore = useStore;
 }

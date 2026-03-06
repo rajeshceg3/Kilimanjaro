@@ -21,9 +21,9 @@ test.describe('Mount Kilimanjaro Journey', () => {
     // Directly set state via page evaluation to bypass UI interaction flakiness in headless WebGL.
     // We exposed the Zustand store to window for testing.
     await page.evaluate(() => {
-        if ((window as any).useStore) {
-            (window as any).useStore.getState().setTargetAltitude(2500);
-            (window as any).useStore.getState().setAltitude(2500);
+        if ((window as unknown as { useStore: { getState: () => { setTargetAltitude: (a: number) => void; setAltitude: (a: number) => void; } } }).useStore) {
+            (window as unknown as { useStore: { getState: () => { setTargetAltitude: (a: number) => void; setAltitude: (a: number) => void; } } }).useStore.getState().setTargetAltitude(2500);
+            (window as unknown as { useStore: { getState: () => { setTargetAltitude: (a: number) => void; setAltitude: (a: number) => void; } } }).useStore.getState().setAltitude(2500);
         }
     });
 
@@ -34,9 +34,9 @@ test.describe('Mount Kilimanjaro Journey', () => {
     test.setTimeout(90000);
 
     await page.evaluate(() => {
-        if ((window as any).useStore) {
-            (window as any).useStore.getState().setTargetAltitude(6000);
-            (window as any).useStore.getState().setAltitude(6000);
+        if ((window as unknown as { useStore: { getState: () => { setTargetAltitude: (a: number) => void; setAltitude: (a: number) => void; } } }).useStore) {
+            (window as unknown as { useStore: { getState: () => { setTargetAltitude: (a: number) => void; setAltitude: (a: number) => void; } } }).useStore.getState().setTargetAltitude(6000);
+            (window as unknown as { useStore: { getState: () => { setTargetAltitude: (a: number) => void; setAltitude: (a: number) => void; } } }).useStore.getState().setAltitude(6000);
         }
     });
 
@@ -63,11 +63,11 @@ test.describe('Mount Kilimanjaro Journey', () => {
     // Trigger activity via touch to fade back in reliably
     await page.evaluate(() => {
         const touchStart = new TouchEvent('touchstart', {
-             touches: [new Touch({ identifier: 0, target: document.body, clientY: 10 })] as any
+             touches: [new Touch({ identifier: 0, target: document.body, clientY: 10 }) as unknown as Touch]
         });
         window.dispatchEvent(touchStart);
         const touchMove = new TouchEvent('touchmove', {
-             touches: [new Touch({ identifier: 0, target: document.body, clientY: 0 })] as any
+             touches: [new Touch({ identifier: 0, target: document.body, clientY: 0 }) as unknown as Touch]
         });
         window.dispatchEvent(touchMove);
     });

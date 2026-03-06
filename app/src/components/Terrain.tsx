@@ -57,8 +57,8 @@ export const Terrain = () => {
             `#include <begin_vertex>`,
             `
             #include <begin_vertex>
-            vec4 worldPosition = modelMatrix * vec4(position, 1.0);
-            vWorldPos = worldPosition.xyz;
+            vec4 myWorldPosition = modelMatrix * vec4(position, 1.0);
+            vWorldPos = myWorldPosition.xyz;
             `
           );
 
