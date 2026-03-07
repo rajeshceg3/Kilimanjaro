@@ -77,23 +77,23 @@ export const UI = () => {
         {!showSummitText && (
           <div data-testid="main-ui" className={`fixed inset-0 pointer-events-none transition-opacity duration-1000 ${visible ? 'opacity-100' : 'opacity-0'}`}>
               <div className="absolute top-8 left-8 text-white font-light tracking-widest mix-blend-difference">
-                  <h1 className="text-xs opacity-50 uppercase">Altitude</h1>
-                  <p className="text-4xl font-thin">{altitude}m</p>
+                  <h1 className="text-xs text-white/50 uppercase tracking-[0.4em]">Altitude</h1>
+                  <p className="text-5xl font-extralight tabular-nums">{altitude}m</p>
               </div>
 
               {/* Zone Info - Hidden at very summit to show special text */}
               <div className={`absolute bottom-20 w-full text-center text-white px-4 mix-blend-difference transition-opacity duration-1000 ${fadeZone ? 'opacity-100' : 'opacity-0'}`}>
-                  <h2 className="text-xl md:text-2xl font-light tracking-widest mb-2 uppercase">
+                  <h2 className="text-2xl md:text-3xl font-extralight tracking-[0.5em] text-white/90 mb-2 uppercase">
                   {displayZone.name}
                   </h2>
-                  <p className="text-sm md:text-base opacity-70 italic max-w-md mx-auto font-serif">
+                  <p className="text-sm md:text-base opacity-60 font-light leading-relaxed italic max-w-md mx-auto font-serif">
                   "{displayZone.quote}"
                   </p>
               </div>
 
               {/* Simple scroll indicator if at start */}
               {altitude < 850 && (
-                  <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white text-xs opacity-50 animate-bounce tracking-widest uppercase">
+                  <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white/40 text-xs animate-gentle-pulse tracking-[0.3em] font-light uppercase">
                       Scroll to Ascend
                   </div>
               )}
