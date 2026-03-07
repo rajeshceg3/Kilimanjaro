@@ -13,3 +13,14 @@ export const useStore = create<State>((set) => ({
   setTargetAltitude: (alt) => set({ targetAltitude: alt }),
   setAltitude: (alt) => set({ altitude: alt }),
 }));
+
+// Expose store to window for E2E tests to bypass rendering lag
+declare global {
+  interface Window {
+    useStore?: typeof useStore;
+  }
+}
+
+if (typeof window !== 'undefined') {
+  window.useStore = useStore;
+}

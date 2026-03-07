@@ -3,6 +3,7 @@ import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { DoubleSide, MathUtils, IcosahedronGeometry, CylinderGeometry, ConeGeometry, MeshStandardMaterial } from 'three';
 import { createOrganicGeometry } from '../utils/geometry';
+import { getTerrainZ } from '../utils/terrain';
 
 // Define a local interface for the shader object to satisfy TypeScript,
 // since 'three' doesn't export a 'Shader' type directly.
@@ -37,10 +38,10 @@ const FloraZone = ({ range, type }: FloraProps) => {
   const data = useMemo(() => {
     return Array.from({ length: COUNT }).map(() => {
       const y = MathUtils.randFloat(range[0], range[1]) * SCALE_FACTOR;
-      const angle = MathUtils.randFloat(0, Math.PI * 2);
-      const radius = MathUtils.randFloat(15, SPREAD);
-      const x = Math.cos(angle) * radius;
-      const z = Math.sin(angle) * radius;
+      // We no longer spread them completely radially in a full circle, because our terrain is a forward-facing slope.
+      // We will place them along the X axis and calculate Z based on the terrain function.
+      const x = MathUtils.randFloat(-SPREAD, SPREAD);
+      const z = getTerrainZ(x, y);
 
       const scale = MathUtils.randFloat(0.6, 1.4);
 
@@ -66,7 +67,8 @@ const FloraZone = ({ range, type }: FloraProps) => {
         trunkGeo.translate(0, 1.5, 0);
 
         // High res for smooth normals
-        let crownGeo = new IcosahedronGeometry(2.5, 12);
+        // Increased geometry detail to 32 segments to ensure smooth shading after displacement
+        let crownGeo = new IcosahedronGeometry(2.5, 32);
         crownGeo.scale(1, 0.5, 1);
         crownGeo.translate(0, 3.0, 0);
         // Soft displacement to make it organic, not spiky
@@ -74,8 +76,8 @@ const FloraZone = ({ range, type }: FloraProps) => {
 
         return {
           parts: [
-            { geo: trunkGeo, matType: 'standard', color: '#5C4033', roughness: 0.9 },
-            { geo: crownGeo, matType: 'foliage', color: '#4a6741', roughness: 0.8 }
+            { geo: trunkGeo, matType: 'standard', color: '#5C4033', roughness: 0.9, transmission: 0, thickness: 0 },
+            { geo: crownGeo, matType: 'foliage', color: '#4a6741', roughness: 0.8, transmission: 0, thickness: 0 }
           ]
         };
       }
@@ -83,15 +85,15 @@ const FloraZone = ({ range, type }: FloraProps) => {
         const trunkGeo = new CylinderGeometry(0.3, 0.6, 8, 16, 4);
         trunkGeo.translate(0, 4, 0);
 
-        let crownGeo = new IcosahedronGeometry(3.5, 12);
+        let crownGeo = new IcosahedronGeometry(3.5, 32);
         crownGeo.scale(1, 0.8, 1);
         crownGeo.translate(0, 8, 0);
         crownGeo = createOrganicGeometry(crownGeo, 0.8, 1.2) as IcosahedronGeometry;
 
         return {
           parts: [
-            { geo: trunkGeo, matType: 'standard', color: '#3A2E24', roughness: 0.9 },
-            { geo: crownGeo, matType: 'foliage', color: '#1a3c18', roughness: 0.7 }
+            { geo: trunkGeo, matType: 'standard', color: '#3A2E24', roughness: 0.9, transmission: 0, thickness: 0 },
+            { geo: crownGeo, matType: 'foliage', color: '#1a3c18', roughness: 0.7, transmission: 0, thickness: 0 }
           ]
         };
       }
@@ -107,24 +109,24 @@ const FloraZone = ({ range, type }: FloraProps) => {
 
         return {
           parts: [
-            { geo: trunkGeo, matType: 'standard', color: '#6A5F52', roughness: 1.0 },
-            { geo: crownGeo, matType: 'foliage', color: '#6b4c35', roughness: 0.9 }
+            { geo: trunkGeo, matType: 'standard', color: '#6A5F52', roughness: 1.0, transmission: 0, thickness: 0 },
+            { geo: crownGeo, matType: 'foliage', color: '#6b4c35', roughness: 0.9, transmission: 0, thickness: 0 }
           ]
         };
       }
       case 'rock': {
-        let rockGeo = new IcosahedronGeometry(2.5, 16);
+        let rockGeo = new IcosahedronGeometry(2.5, 32);
         // Higher res, smoother crags
         rockGeo = createOrganicGeometry(rockGeo, 1.0, 1.0) as IcosahedronGeometry;
 
         return {
           parts: [
-            { geo: rockGeo, matType: 'standard', color: '#8c8c8c', roughness: 0.8 }
+            { geo: rockGeo, matType: 'standard', color: '#8c8c8c', roughness: 0.8, transmission: 0, thickness: 0 }
           ]
         };
       }
       case 'ice': {
-        let iceGeo = new IcosahedronGeometry(2.5, 16);
+        let iceGeo = new IcosahedronGeometry(2.5, 32);
         iceGeo = createOrganicGeometry(iceGeo, 0.8, 1.5) as IcosahedronGeometry;
 
         return {
