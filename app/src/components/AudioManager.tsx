@@ -163,7 +163,7 @@ export const AudioManager = () => {
     <div className="fixed bottom-8 right-8 z-50">
       <button
         onClick={handleStartAudio}
-        className="bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-xs uppercase tracking-widest hover:bg-white/20 transition-all"
+        className="bg-white/5 backdrop-blur-md border border-white/10 text-white/70 hover:text-white px-4 py-2 rounded-full text-xs uppercase tracking-widest hover:bg-white/10 hover:scale-105 transition-all duration-500"
       >
         Enable Audio
       </button>
