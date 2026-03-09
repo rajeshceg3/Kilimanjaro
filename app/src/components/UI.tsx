@@ -20,6 +20,7 @@ export const UI = () => {
   // Intro Sequence
   useEffect(() => {
     if (altitude > 805) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setHasStarted(true);
     }
   }, [altitude]);
