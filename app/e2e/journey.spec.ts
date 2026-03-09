@@ -17,7 +17,7 @@ test.describe('Mount Kilimanjaro Journey', () => {
   });
 
   test('starts at Cultivation Zone', async ({ page }) => {
-    await expect(page.getByText('Cultivation Zone')).toBeVisible();
+    await expect(page.getByText('Cultivation Zone').first()).toBeVisible();
     await expect(page.getByText('"You begin where life already exists."')).toBeVisible();
   });
 
@@ -35,7 +35,7 @@ test.describe('Mount Kilimanjaro Journey', () => {
         }
     });
 
-    await expect(page.getByText('Rainforest Zone')).toBeVisible({ timeout: 20000 });
+    await expect(page.getByText('Rainforest Zone').first()).toBeVisible({ timeout: 20000 });
   });
 
   test('can reach the Summit', async ({ page }) => {
