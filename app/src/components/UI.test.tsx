@@ -4,14 +4,14 @@ import { UI } from './UI';
 import { useStore } from '../store/useStore';
 
 // Helper to get the main container
-const getContainer = () => screen.getByText(/Altitude/i).closest('div')?.parentElement;
+const getContainer = () => screen.getByTestId('main-ui');
 
 describe('UI Component', () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    // Reset store
+    // Reset store to an altitude above 805 to bypass the intro screen logic in tests
     act(() => {
-      useStore.setState({ altitude: 800, targetAltitude: 800 });
+      useStore.setState({ altitude: 810, targetAltitude: 810 });
     });
   });
 
@@ -22,7 +22,7 @@ describe('UI Component', () => {
 
   it('renders initial altitude and zone information', () => {
     render(<UI />);
-    expect(screen.getByText('800m')).toBeInTheDocument();
+    expect(screen.getByText('810')).toBeInTheDocument();
     expect(screen.getByText('Cultivation Zone')).toBeInTheDocument();
   });
 
@@ -34,7 +34,7 @@ describe('UI Component', () => {
     });
 
     // Altitude updates immediately
-    expect(screen.getByText('2000m')).toBeInTheDocument();
+    expect(screen.getByText('2000')).toBeInTheDocument();
 
     // Zone text has a transition delay of 1000ms
     act(() => {
