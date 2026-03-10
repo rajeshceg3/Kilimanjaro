@@ -23,7 +23,8 @@ describe('UI Component', () => {
   it('renders initial altitude and zone information', () => {
     render(<UI />);
     expect(screen.getByText('810')).toBeInTheDocument();
-    expect(screen.getByText('Cultivation Zone')).toBeInTheDocument();
+    // Use getAllByText because the zone name appears in the main area and in the timeline tooltips
+    expect(screen.getAllByText('Cultivation Zone').length).toBeGreaterThan(0);
   });
 
   it('updates when altitude changes', () => {
@@ -41,7 +42,7 @@ describe('UI Component', () => {
       vi.advanceTimersByTime(1000);
     });
 
-    expect(screen.getByText('Rainforest Zone')).toBeInTheDocument();
+    expect(screen.getAllByText('Rainforest Zone').length).toBeGreaterThan(0);
   });
 
   it('handles visibility timeout', () => {
