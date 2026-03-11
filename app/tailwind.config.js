@@ -35,7 +35,7 @@ export default {
         },
         'tracking-expand': {
           '0%': { letterSpacing: '0.1em', opacity: '0' },
-          '100%': { letterSpacing: '0.3em', opacity: '1' },
+          '100%': { letterSpacing: '0.5em', opacity: '1' },
         },
         'pulse-slow': {
           '0%, 100%': { opacity: '0.5' },
