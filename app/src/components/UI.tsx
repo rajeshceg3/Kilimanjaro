@@ -104,9 +104,9 @@ export const UI = () => {
           <div data-testid="main-ui" className={`fixed inset-0 pointer-events-none transition-opacity duration-1000 ${visible ? 'opacity-100' : 'opacity-0'}`}>
 
               {/* Top Left: Altitude - Instant comprehension */}
-              <div className="absolute top-8 left-8 md:top-12 md:left-12 text-white font-light tracking-widest mix-blend-difference transition-opacity duration-1000">
-                  <h1 className="text-[0.65rem] text-white/50 uppercase tracking-[0.6em] mb-2 font-serif">Altitude</h1>
-                  <p className="text-5xl md:text-7xl font-extralight tabular-nums tracking-widest drop-shadow-lg">{altitude}<span className="text-2xl md:text-3xl text-white/40 ml-2 font-serif font-light">m</span></p>
+              <div className="absolute top-8 left-8 md:top-12 md:left-12 text-white mix-blend-difference transition-opacity duration-1000">
+                  <h1 className="text-xs opacity-50 uppercase tracking-[0.4em] mb-2 font-serif">Altitude</h1>
+                  <p className="text-5xl md:text-7xl font-extralight tabular-nums tracking-[0.5em] drop-shadow-lg">{altitude}<span className="text-2xl md:text-3xl text-white/40 ml-2 font-serif font-light">m</span></p>
               </div>
 
               {/* Right: Progress Bar / Timeline - Discovery & Interaction */}
@@ -143,7 +143,7 @@ export const UI = () => {
 
               {/* Bottom: Zone Info - Context & Clarity */}
               <div className={`absolute bottom-16 md:bottom-24 w-full text-center text-white px-4 mix-blend-difference transition-all duration-1000 transform ${fadeZone ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-                  <h2 className="text-2xl md:text-4xl font-extralight tracking-[0.5em] text-white/90 mb-4 uppercase drop-shadow-md">
+                  <h2 className="text-4xl md:text-5xl font-extralight tracking-[0.5em] text-white/90 mb-4 uppercase drop-shadow-md">
                   {displayZone.name}
                   </h2>
                   <p className="text-sm md:text-base opacity-60 font-light leading-relaxed italic max-w-lg mx-auto font-serif tracking-widest drop-shadow-md">
@@ -153,7 +153,7 @@ export const UI = () => {
 
               {/* Simple scroll indicator if at start */}
               {altitude < 850 && (
-                  <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center opacity-40 animate-gentle-pulse transition-opacity duration-1000">
+                  <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center animate-gentle-pulse transition-opacity duration-1000">
                       <div className="text-[0.6rem] text-white/60 uppercase tracking-[0.6em] font-light mb-2">
                           Scroll to Ascend
                       </div>
