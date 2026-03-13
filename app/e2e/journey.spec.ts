@@ -17,8 +17,11 @@ test.describe('Mount Kilimanjaro Journey', () => {
   });
 
   test('starts at Cultivation Zone', async ({ page }) => {
-    await expect(page.getByText('Cultivation Zone').first()).toBeVisible();
-    await expect(page.getByText('"You begin where life already exists."')).toBeVisible();
+    // When using `.getByText`, if it matches multiple things (like the tooltip and the main text),
+    // `.first()` handles it correctly, which we do here.
+    // However, the test might fail because of opacity fades, so let's make sure it's fully visible.
+    await expect(page.getByText('Cultivation Zone').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('"You begin where life already exists."').first()).toBeVisible();
   });
 
   test('ascends to Rainforest Zone on scroll', async ({ page }) => {

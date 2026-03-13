@@ -16,6 +16,23 @@ export const Scene = () => {
     const altitude = useStore.getState().altitude;
     const targetAltitude = useStore.getState().targetAltitude;
     const setAltitude = useStore.getState().setAltitude;
+    const isTourActive = useStore.getState().isTourActive;
+    const setTargetAltitude = useStore.getState().setTargetAltitude;
+    const setTourActive = useStore.getState().setTourActive;
+
+    // Tour mode continuous ascent
+    if (isTourActive) {
+      // Ascend by ~20 meters per second at the bottom, slowing down to ~10 at the top
+      const speed = MathUtils.mapLinear(altitude, 800, 6000, 20, 10);
+      const newTarget = targetAltitude + speed * delta;
+
+      if (newTarget >= 6000) {
+        setTargetAltitude(6000);
+        setTourActive(false); // End tour automatically at summit
+      } else {
+        setTargetAltitude(newTarget);
+      }
+    }
 
     // Calculate smoothing factor based on altitude
     // Lower altitude = faster/normal (2.0)

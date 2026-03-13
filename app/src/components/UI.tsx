@@ -5,6 +5,8 @@ import { useEffect, useState, useRef } from 'react';
 export const UI = () => {
   const altitude = useStore((state) => Math.round(state.altitude));
   const setTargetAltitude = useStore((state) => state.setTargetAltitude);
+  const isTourActive = useStore((state) => state.isTourActive);
+  const setTourActive = useStore((state) => state.setTourActive);
   const currentZone = getZoneAtAltitude(altitude);
 
   const [visible, setVisible] = useState(true);
@@ -153,10 +155,34 @@ export const UI = () => {
 
               {/* Simple scroll indicator if at start */}
               {altitude < 850 && (
-                  <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center animate-gentle-pulse transition-opacity duration-1000">
+                  <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center animate-gentle-pulse transition-opacity duration-1000 pointer-events-auto">
                       <div className="text-[0.6rem] text-white/60 uppercase tracking-[0.6em] font-light mb-2">
                           Scroll to Ascend
                       </div>
+                      <button
+                        className="mt-4 px-6 py-2 rounded-full border border-white/20 bg-white/5 backdrop-blur-md text-xs font-light tracking-widest text-white/80 hover:bg-white/10 hover:scale-105 transition-all duration-500 pointer-events-auto"
+                        onClick={() => {
+                          setTargetAltitude(801); // Trigger the start
+                          setTourActive(true);
+                        }}
+                      >
+                        Start Guided Tour
+                      </button>
+                  </div>
+              )}
+
+              {/* Guided Tour Status */}
+              {isTourActive && altitude >= 850 && (
+                  <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center animate-fade-in transition-opacity duration-1000 pointer-events-auto">
+                      <div className="text-[0.6rem] text-white/40 uppercase tracking-[0.6em] font-light mb-2">
+                          Guided Tour Active
+                      </div>
+                      <button
+                        className="px-6 py-2 rounded-full border border-white/10 bg-black/10 backdrop-blur-sm text-[0.6rem] font-extralight tracking-widest text-white/60 hover:text-white/90 hover:border-white/30 transition-all duration-500 pointer-events-auto"
+                        onClick={() => setTourActive(false)}
+                      >
+                        Exit Tour
+                      </button>
                   </div>
               )}
           </div>
