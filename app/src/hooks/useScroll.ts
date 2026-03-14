@@ -4,10 +4,16 @@ import { MathUtils } from 'three';
 
 export const useScroll = () => {
   const setTargetAltitude = useStore((state) => state.setTargetAltitude);
+  const setTourActive = useStore((state) => state.setTourActive);
 
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
+
+      const isTourActive = useStore.getState().isTourActive;
+      if (isTourActive) {
+        setTourActive(false); // Manually scrolling interrupts the tour
+      }
 
       const currentTarget = useStore.getState().targetAltitude;
       // Scroll down (positive delta) -> increase altitude
@@ -32,6 +38,11 @@ export const useScroll = () => {
       // However, if we add UI buttons, we might need to be careful.
       if (e.target instanceof HTMLCanvasElement) {
          e.preventDefault();
+      }
+
+      const isTourActive = useStore.getState().isTourActive;
+      if (isTourActive) {
+        setTourActive(false); // Manually touching interrupts the tour
       }
 
       const touchY = e.touches[0].clientY;
