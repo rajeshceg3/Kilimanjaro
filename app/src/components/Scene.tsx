@@ -1,6 +1,7 @@
 import { useFrame } from '@react-three/fiber';
 import { useStore } from '../store/useStore';
 import { MathUtils } from 'three';
+import { useRef } from 'react';
 import { Atmosphere } from './Atmosphere';
 import { ZONES } from '../config/zones';
 import { Sky } from './Sky';
@@ -13,6 +14,8 @@ import { Glacier } from './ZoneDetails/Glacier';
 import { Terrain } from './Terrain';
 
 export const Scene = () => {
+  const tourSpeedRef = useRef(0);
+
   useFrame((state, delta) => {
     const altitude = useStore.getState().altitude;
     const targetAltitude = useStore.getState().targetAltitude;
@@ -23,29 +26,41 @@ export const Scene = () => {
     const setTourActive = useStore.getState().setTourActive;
 
     // Tour mode continuous ascent
-    if (isTourActive && !isTourPaused) {
+    if (isTourActive) {
       // Ascend by ~20 meters per second at the bottom, slowing down to ~10 at the top
-      let baseSpeed = MathUtils.mapLinear(altitude, 800, 6000, 20, 10);
+      let targetSpeed = 0;
 
-      // Dynamic deceleration near zone boundaries for progressive disclosure
-      const nextZone = ZONES.find(z => z.minAltitude > altitude);
-      if (nextZone) {
-        const distanceToNextZone = nextZone.minAltitude - altitude;
-        if (distanceToNextZone < 150) {
-           // Slow down significantly as we approach the boundary (down to 2m/s)
-           // This allows the zone text to fade in smoothly
-           baseSpeed = MathUtils.mapLinear(distanceToNextZone, 0, 150, 2, baseSpeed);
+      if (!isTourPaused) {
+        targetSpeed = MathUtils.mapLinear(altitude, 800, 6000, 20, 10);
+
+        // Dynamic deceleration near zone boundaries for progressive disclosure
+        const nextZone = ZONES.find(z => z.minAltitude > altitude);
+        if (nextZone) {
+          const distanceToNextZone = nextZone.minAltitude - altitude;
+          if (distanceToNextZone < 150) {
+            // Slow down smoothly using smoothstep as we approach boundary (down to 2m/s)
+            const t = MathUtils.smoothstep(distanceToNextZone, 0, 150);
+            targetSpeed = MathUtils.lerp(2, targetSpeed, t);
+          }
         }
       }
 
-      const newTarget = targetAltitude + baseSpeed * delta;
+      // Smooth acceleration/deceleration for the tour speed itself
+      // When unpaused, gently accelerate to target speed. When paused, gently decelerate to 0.
+      tourSpeedRef.current = MathUtils.lerp(tourSpeedRef.current, targetSpeed, delta * 2.0);
 
-      if (newTarget >= 6000) {
-        setTargetAltitude(6000);
-        setTourActive(false); // End tour automatically at summit
-      } else {
-        setTargetAltitude(newTarget);
+      if (tourSpeedRef.current > 0.05) {
+        const newTarget = targetAltitude + tourSpeedRef.current * delta;
+
+        if (newTarget >= 6000) {
+          setTargetAltitude(6000);
+          setTourActive(false); // End tour automatically at summit
+        } else {
+          setTargetAltitude(newTarget);
+        }
       }
+    } else {
+      tourSpeedRef.current = 0; // reset momentum if tour is canceled
     }
 
     // Calculate smoothing factor based on altitude

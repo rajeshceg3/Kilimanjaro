@@ -61,7 +61,7 @@ describe('UI Component', () => {
     expect(updatedContainer).toHaveClass('opacity-0');
   });
 
-  it('resets visibility on altitude change', () => {
+  it('resets visibility on zone change', () => {
     render(<UI />);
 
     // Advance time to make it hidden
@@ -71,12 +71,26 @@ describe('UI Component', () => {
 
     expect(getContainer()).toHaveClass('opacity-0');
 
-    // Change altitude
+    // Change altitude across a zone boundary (e.g. 810 to 1800+)
     act(() => {
-      useStore.setState({ altitude: 850 });
+      useStore.setState({ altitude: 2000 });
     });
 
     // Should be visible again
+    expect(getContainer()).toHaveClass('opacity-100');
+  });
+
+  it('wakes UI on user interaction', () => {
+    render(<UI />);
+    act(() => {
+      vi.advanceTimersByTime(3000);
+    });
+    expect(getContainer()).toHaveClass('opacity-0');
+
+    act(() => {
+      window.dispatchEvent(new Event('mousemove'));
+    });
+
     expect(getContainer()).toHaveClass('opacity-100');
   });
 });
