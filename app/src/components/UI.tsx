@@ -7,6 +7,8 @@ export const UI = () => {
   const setTargetAltitude = useStore((state) => state.setTargetAltitude);
   const isTourActive = useStore((state) => state.isTourActive);
   const setTourActive = useStore((state) => state.setTourActive);
+  const isTourPaused = useStore((state) => state.isTourPaused);
+  const setTourPaused = useStore((state) => state.setTourPaused);
   const currentZone = getZoneAtAltitude(altitude);
 
   const [visible, setVisible] = useState(true);
@@ -14,7 +16,8 @@ export const UI = () => {
 
   // Zone transition state
   const [displayZone, setDisplayZone] = useState(currentZone);
-  const [fadeZone, setFadeZone] = useState(true);
+  const [fadeZoneName, setFadeZoneName] = useState(true);
+  const [fadeZoneQuote, setFadeZoneQuote] = useState(true);
 
   // Summit Specifics
   const isSummitReached = altitude >= 5890;
@@ -52,21 +55,31 @@ export const UI = () => {
     };
   }, []);
 
-  // Handle zone text transition
+  // Handle zone text transition with progressive disclosure
   const prevZoneName = useRef(currentZone.name);
 
   useEffect(() => {
     if (currentZone.name !== prevZoneName.current) {
+      // Start fade out for both
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setFadeZone(false); // Start fade out
+      setFadeZoneName(false);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setFadeZoneQuote(false);
 
-      const timer = setTimeout(() => {
+      const updateZoneTimer = setTimeout(() => {
         setDisplayZone(currentZone);
-        setFadeZone(true); // Start fade in
+        setFadeZoneName(true); // Fade in name first
         prevZoneName.current = currentZone.name;
       }, 1000);
 
-      return () => clearTimeout(timer);
+      const quoteTimer = setTimeout(() => {
+        setFadeZoneQuote(true); // Fade in quote 1.5s later
+      }, 2500);
+
+      return () => {
+        clearTimeout(updateZoneTimer);
+        clearTimeout(quoteTimer);
+      };
     }
   }, [currentZone]);
 
@@ -132,10 +145,12 @@ export const UI = () => {
                       >
                           <div className={`w-2 h-[1px] bg-white transition-all duration-300 ${altitude >= zone.minAltitude ? 'opacity-100 w-3' : 'opacity-30'} group-hover/zone:w-4 group-hover/zone:opacity-100`}></div>
 
-                          {/* Tooltip on Hover */}
+                          {/* Tooltip on Hover with progressive disclosure */}
                           <div className={`absolute right-6 top-1/2 -translate-y-1/2 whitespace-nowrap text-right transition-all duration-500 ${hoveredZone === zone.name ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4 pointer-events-none'}`}>
                               <p className="text-[0.55rem] uppercase tracking-[0.4em] text-white/60 mb-1">{zone.minAltitude}m</p>
-                              <p className="text-xs font-light tracking-widest text-white/90">{zone.name}</p>
+                              <p className="text-xs font-light tracking-widest text-white/90">
+                                {altitude >= zone.minAltitude || hoveredZone === zone.name ? zone.name : "Unknown Zone"}
+                              </p>
                           </div>
                       </div>
                   )})}
@@ -143,12 +158,12 @@ export const UI = () => {
                   <div className="absolute -bottom-8 text-[0.6rem] text-white/40 uppercase tracking-[0.4em]">800</div>
               </div>
 
-              {/* Bottom: Zone Info - Context & Clarity */}
-              <div className={`absolute bottom-16 md:bottom-24 w-full text-center text-white px-4 mix-blend-difference transition-all duration-1000 transform ${fadeZone ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-                  <h2 className="text-4xl md:text-5xl font-extralight tracking-[0.5em] text-white/90 mb-4 uppercase drop-shadow-md">
+              {/* Bottom: Zone Info - Context & Clarity (Progressive Reveal) */}
+              <div className="absolute bottom-16 md:bottom-24 w-full text-center text-white px-4 mix-blend-difference pointer-events-none">
+                  <h2 className={`text-4xl md:text-5xl font-extralight tracking-[0.5em] text-white/90 mb-4 uppercase drop-shadow-md transition-all duration-1000 transform ${fadeZoneName ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
                   {displayZone.name}
                   </h2>
-                  <p className="text-sm md:text-base opacity-60 font-light leading-relaxed italic max-w-lg mx-auto font-serif tracking-widest drop-shadow-md">
+                  <p className={`text-sm md:text-base opacity-60 font-light leading-relaxed italic max-w-lg mx-auto font-serif tracking-widest drop-shadow-md transition-all duration-1000 transform ${fadeZoneQuote ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
                   "{displayZone.quote}"
                   </p>
               </div>
@@ -171,18 +186,27 @@ export const UI = () => {
                   </div>
               )}
 
-              {/* Guided Tour Status */}
+              {/* Guided Tour Status & Controls */}
               {isTourActive && altitude >= 850 && (
                   <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center animate-fade-in transition-opacity duration-1000 pointer-events-auto">
-                      <div className="text-[0.6rem] text-white/40 uppercase tracking-[0.6em] font-light mb-2">
-                          Guided Tour Active
+                      <div className="text-[0.6rem] text-white/40 uppercase tracking-[0.6em] font-light mb-2 flex items-center gap-2">
+                          {isTourPaused && <span className="w-1.5 h-1.5 rounded-full bg-white/50 animate-pulse"></span>}
+                          Guided Tour {isTourPaused ? 'Paused' : 'Active'}
                       </div>
-                      <button
-                        className="px-6 py-2 rounded-full border border-white/10 bg-black/10 backdrop-blur-sm text-[0.6rem] font-extralight tracking-widest text-white/60 hover:text-white/90 hover:border-white/30 transition-all duration-500 pointer-events-auto"
-                        onClick={() => setTourActive(false)}
-                      >
-                        Exit Tour
-                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          className="px-6 py-2 rounded-full border border-white/10 bg-black/10 backdrop-blur-sm text-[0.6rem] font-extralight tracking-widest text-white/60 hover:text-white/90 hover:border-white/30 transition-all duration-500 pointer-events-auto"
+                          onClick={() => setTourPaused(!isTourPaused)}
+                        >
+                          {isTourPaused ? 'Resume' : 'Pause'}
+                        </button>
+                        <button
+                          className="px-6 py-2 rounded-full border border-white/10 bg-black/10 backdrop-blur-sm text-[0.6rem] font-extralight tracking-widest text-white/60 hover:text-white/90 hover:border-white/30 transition-all duration-500 pointer-events-auto"
+                          onClick={() => setTourActive(false)}
+                        >
+                          Exit Tour
+                        </button>
+                      </div>
                   </div>
               )}
           </div>

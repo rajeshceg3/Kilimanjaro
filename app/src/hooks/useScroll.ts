@@ -4,7 +4,7 @@ import { MathUtils } from 'three';
 
 export const useScroll = () => {
   const setTargetAltitude = useStore((state) => state.setTargetAltitude);
-  const setTourActive = useStore((state) => state.setTourActive);
+  const setTourPaused = useStore((state) => state.setTourPaused);
 
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
@@ -12,7 +12,7 @@ export const useScroll = () => {
 
       const isTourActive = useStore.getState().isTourActive;
       if (isTourActive) {
-        setTourActive(false); // Manually scrolling interrupts the tour
+        setTourPaused(true); // Manually scrolling pauses the tour instead of exiting completely
       }
 
       const currentTarget = useStore.getState().targetAltitude;
@@ -42,7 +42,7 @@ export const useScroll = () => {
 
       const isTourActive = useStore.getState().isTourActive;
       if (isTourActive) {
-        setTourActive(false); // Manually touching interrupts the tour
+        setTourPaused(true); // Manually touching pauses the tour instead of exiting completely
       }
 
       const touchY = e.touches[0].clientY;

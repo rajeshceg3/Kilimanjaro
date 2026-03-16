@@ -2,6 +2,7 @@ import { useFrame } from '@react-three/fiber';
 import { useStore } from '../store/useStore';
 import { MathUtils } from 'three';
 import { Atmosphere } from './Atmosphere';
+import { ZONES } from '../config/zones';
 import { Sky } from './Sky';
 import { Flora } from './Flora';
 import { Particles } from './Particles';
@@ -17,14 +18,27 @@ export const Scene = () => {
     const targetAltitude = useStore.getState().targetAltitude;
     const setAltitude = useStore.getState().setAltitude;
     const isTourActive = useStore.getState().isTourActive;
+    const isTourPaused = useStore.getState().isTourPaused;
     const setTargetAltitude = useStore.getState().setTargetAltitude;
     const setTourActive = useStore.getState().setTourActive;
 
     // Tour mode continuous ascent
-    if (isTourActive) {
+    if (isTourActive && !isTourPaused) {
       // Ascend by ~20 meters per second at the bottom, slowing down to ~10 at the top
-      const speed = MathUtils.mapLinear(altitude, 800, 6000, 20, 10);
-      const newTarget = targetAltitude + speed * delta;
+      let baseSpeed = MathUtils.mapLinear(altitude, 800, 6000, 20, 10);
+
+      // Dynamic deceleration near zone boundaries for progressive disclosure
+      const nextZone = ZONES.find(z => z.minAltitude > altitude);
+      if (nextZone) {
+        const distanceToNextZone = nextZone.minAltitude - altitude;
+        if (distanceToNextZone < 150) {
+           // Slow down significantly as we approach the boundary (down to 2m/s)
+           // This allows the zone text to fade in smoothly
+           baseSpeed = MathUtils.mapLinear(distanceToNextZone, 0, 150, 2, baseSpeed);
+        }
+      }
+
+      const newTarget = targetAltitude + baseSpeed * delta;
 
       if (newTarget >= 6000) {
         setTargetAltitude(6000);
