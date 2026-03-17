@@ -34,14 +34,19 @@ export const Scene = () => {
         targetSpeed = MathUtils.mapLinear(altitude, 800, 6000, 20, 10);
 
         // Dynamic deceleration near zone boundaries for progressive disclosure
-        const nextZone = ZONES.find(z => z.minAltitude > altitude);
-        if (nextZone) {
-          const distanceToNextZone = nextZone.minAltitude - altitude;
-          if (distanceToNextZone < 150) {
-            // Slow down smoothly using smoothstep as we approach boundary (down to 2m/s)
-            const t = MathUtils.smoothstep(distanceToNextZone, 0, 150);
-            targetSpeed = MathUtils.lerp(2, targetSpeed, t);
+        let closestBoundaryDistance = Infinity;
+        for (const zone of ZONES) {
+          // Check distance to the zone boundary (minAltitude)
+          const dist = Math.abs(zone.minAltitude - altitude);
+          if (dist < closestBoundaryDistance) {
+            closestBoundaryDistance = dist;
           }
+        }
+
+        if (closestBoundaryDistance < 150) {
+          // Slow down smoothly using smoothstep around the boundary (down to 2m/s)
+          const t = MathUtils.smoothstep(closestBoundaryDistance, 0, 150);
+          targetSpeed = MathUtils.lerp(2, targetSpeed, t);
         }
       }
 
