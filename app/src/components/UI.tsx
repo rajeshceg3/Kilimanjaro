@@ -35,23 +35,29 @@ export const UI = () => {
   }, [altitude]);
 
   // Handle visibility based on activity
-  useEffect(() => {
-    let timeout: ReturnType<typeof setTimeout>;
+  const visibilityTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const unsub = useStore.subscribe((state, prevState) => {
-       if (state.altitude !== prevState.altitude) {
-         setVisible(true);
-         clearTimeout(timeout);
-         timeout = setTimeout(() => setVisible(false), 3000);
-       }
-    });
+  useEffect(() => {
+    const wakeUp = () => {
+        setVisible(true);
+        if (visibilityTimeoutRef.current) clearTimeout(visibilityTimeoutRef.current);
+        visibilityTimeoutRef.current = setTimeout(() => setVisible(false), 3000);
+    };
+
+    window.addEventListener('mousemove', wakeUp);
+    window.addEventListener('touchstart', wakeUp);
+    window.addEventListener('wheel', wakeUp);
+    window.addEventListener('keydown', wakeUp);
 
     // Initial timeout
-    timeout = setTimeout(() => setVisible(false), 3000);
+    wakeUp();
 
     return () => {
-      unsub();
-      clearTimeout(timeout);
+      window.removeEventListener('mousemove', wakeUp);
+      window.removeEventListener('touchstart', wakeUp);
+      window.removeEventListener('wheel', wakeUp);
+      window.removeEventListener('keydown', wakeUp);
+      if (visibilityTimeoutRef.current) clearTimeout(visibilityTimeoutRef.current);
     };
   }, []);
 
@@ -65,6 +71,12 @@ export const UI = () => {
       setFadeZoneName(false);
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setFadeZoneQuote(false);
+
+      // Wake up the UI to show the new zone
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setVisible(true);
+      if (visibilityTimeoutRef.current) clearTimeout(visibilityTimeoutRef.current);
+      visibilityTimeoutRef.current = setTimeout(() => setVisible(false), 6000); // 6 seconds to read
 
       const updateZoneTimer = setTimeout(() => {
         setDisplayZone(currentZone);
