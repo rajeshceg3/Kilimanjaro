@@ -61,10 +61,10 @@ describe('UI Component', () => {
     expect(updatedContainer).toHaveClass('opacity-0');
   });
 
-  it('resets visibility on zone change', () => {
+  it('does NOT reset HUD visibility on zone change (decoupled)', () => {
     render(<UI />);
 
-    // Advance time to make it hidden
+    // Advance time to make HUD hidden
     act(() => {
       vi.advanceTimersByTime(3000);
     });
@@ -76,8 +76,8 @@ describe('UI Component', () => {
       useStore.setState({ altitude: 2000 });
     });
 
-    // Should be visible again
-    expect(getContainer()).toHaveClass('opacity-100');
+    // HUD should remain hidden since it's decoupled from zone narrative text
+    expect(getContainer()).toHaveClass('opacity-0');
   });
 
   it('wakes UI on user interaction', () => {

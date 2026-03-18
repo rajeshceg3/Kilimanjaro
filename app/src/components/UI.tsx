@@ -72,11 +72,9 @@ export const UI = () => {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setFadeZoneQuote(false);
 
-      // Wake up the UI to show the new zone
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setVisible(true);
-      if (visibilityTimeoutRef.current) clearTimeout(visibilityTimeoutRef.current);
-      visibilityTimeoutRef.current = setTimeout(() => setVisible(false), 6000); // 6 seconds to read
+      // Notice: We DO NOT force `setVisible(true)` here anymore.
+      // The HUD (altitude, timeline) only wakes on user interaction.
+      // The zone text (name/quote) is decoupled and controlled by fadeZoneName/fadeZoneQuote.
 
       const updateZoneTimer = setTimeout(() => {
         setDisplayZone(currentZone);
@@ -88,9 +86,15 @@ export const UI = () => {
         setFadeZoneQuote(true); // Fade in quote 1.5s later
       }, 2500);
 
+      const hideTimer = setTimeout(() => {
+        setFadeZoneName(false);
+        setFadeZoneQuote(false);
+      }, 8000); // Hide both after 8 seconds
+
       return () => {
         clearTimeout(updateZoneTimer);
         clearTimeout(quoteTimer);
+        clearTimeout(hideTimer);
       };
     }
   }, [currentZone]);
@@ -171,7 +175,13 @@ export const UI = () => {
               </div>
 
               {/* Bottom: Zone Info - Context & Clarity (Progressive Reveal) */}
-              <div className="absolute bottom-16 md:bottom-24 w-full text-center text-white px-4 mix-blend-difference pointer-events-none">
+              {/* Note: This is now decoupled from the 'visible' state of the HUD container */}
+          </div>
+        )}
+
+        {/* Narrative Text Layer - Independent of HUD visibility */}
+        {!showSummitText && hasStarted && (
+              <div className="fixed bottom-16 md:bottom-24 w-full text-center text-white px-4 mix-blend-difference pointer-events-none transition-opacity duration-1000 z-10">
                   <h2 className={`text-4xl md:text-5xl font-extralight tracking-[0.5em] text-white/90 mb-4 uppercase drop-shadow-md transition-all duration-1000 transform ${fadeZoneName ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
                   {displayZone.name}
                   </h2>
@@ -179,18 +189,29 @@ export const UI = () => {
                   "{displayZone.quote}"
                   </p>
               </div>
+        )}
 
+        {/* Buttons layer - Visible always but logic handles specific states */}
+        {!showSummitText && hasStarted && (
+            <div className="fixed inset-0 pointer-events-none z-20">
               {/* Simple scroll indicator if at start */}
               {altitude < 850 && (
-                  <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center animate-gentle-pulse transition-opacity duration-1000 pointer-events-auto">
+                  <div className={`absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center animate-gentle-pulse transition-opacity duration-1000 pointer-events-auto ${visible ? 'opacity-100' : 'opacity-0'}`}>
                       <div className="text-[0.6rem] text-white/60 uppercase tracking-[0.6em] font-light mb-2">
                           Scroll to Ascend
                       </div>
                       <button
                         className="mt-4 px-6 py-2 rounded-full border border-white/20 bg-white/5 backdrop-blur-md text-xs font-light tracking-widest text-white/80 hover:bg-white/10 hover:scale-105 transition-all duration-500 pointer-events-auto"
                         onClick={() => {
-                          setTargetAltitude(801); // Trigger the start
-                          setTourActive(true);
+                          setVisible(false); // Hide HUD
+                          setFadeZoneName(false); // Hide text
+                          setFadeZoneQuote(false); // Hide text
+
+                          // Pause briefly to simulate a "deep breath" before starting
+                          setTimeout(() => {
+                            setTargetAltitude(801); // Trigger the start
+                            setTourActive(true);
+                          }, 1500);
                         }}
                       >
                         Start Guided Tour
@@ -200,7 +221,7 @@ export const UI = () => {
 
               {/* Guided Tour Status & Controls */}
               {isTourActive && altitude >= 850 && (
-                  <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center animate-fade-in transition-opacity duration-1000 pointer-events-auto">
+                  <div className={`absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center animate-fade-in transition-opacity duration-1000 pointer-events-auto ${visible ? 'opacity-100' : 'opacity-0'}`}>
                       <div className="text-[0.6rem] text-white/40 uppercase tracking-[0.6em] font-light mb-2 flex items-center gap-2">
                           {isTourPaused && <span className="w-1.5 h-1.5 rounded-full bg-white/50 animate-pulse"></span>}
                           Guided Tour {isTourPaused ? 'Paused' : 'Active'}
@@ -221,7 +242,7 @@ export const UI = () => {
                       </div>
                   </div>
               )}
-          </div>
+            </div>
         )}
 
         {/* Summit Special Text - Centered & Narrative */}
