@@ -174,7 +174,7 @@ export const Particles = () => {
   const onBeforeCompileWithUserData = (shader: Shader) => {
     onBeforeCompile(shader);
     if (pointsRef.current && pointsRef.current.material) {
-        (pointsRef.current.material as any).userData.shader = shader;
+        (pointsRef.current.material as PointsMaterial).userData.shader = shader;
     }
   };
 

@@ -69,7 +69,6 @@ export const UI = () => {
       // Start fade out for both
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setFadeZoneName(false);
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFadeZoneQuote(false);
 
       // Notice: We DO NOT force `setVisible(true)` here anymore.
