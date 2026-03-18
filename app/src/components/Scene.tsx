@@ -1,6 +1,6 @@
 import { useFrame } from '@react-three/fiber';
 import { useStore } from '../store/useStore';
-import { MathUtils } from 'three';
+import { MathUtils, PerspectiveCamera } from 'three';
 import { useRef } from 'react';
 import { Atmosphere } from './Atmosphere';
 import { ZONES } from '../config/zones';
@@ -87,9 +87,19 @@ export const Scene = () => {
     const scale = 0.1;
     const yPos = smoothedAltitude * scale;
 
+    const time = state.clock.getElapsedTime();
+    const swayX = Math.sin(time * 0.5) * 0.5;
+    const swayZ = Math.cos(time * 0.3) * 0.5;
+
+    state.camera.position.x = swayX;
     state.camera.position.y = yPos;
-    state.camera.position.z = 10;
+    state.camera.position.z = 10 + swayZ;
     state.camera.lookAt(0, yPos, 0);
+
+    const perspectiveCamera = state.camera as PerspectiveCamera;
+    const targetFov = MathUtils.lerp(45, 55, Math.min(1, tourSpeedRef.current / 20));
+    perspectiveCamera.fov = MathUtils.lerp(perspectiveCamera.fov, targetFov, delta * 2.0);
+    perspectiveCamera.updateProjectionMatrix();
   });
 
   return (

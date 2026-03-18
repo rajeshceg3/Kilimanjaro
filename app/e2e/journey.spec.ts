@@ -74,15 +74,21 @@ test.describe('Mount Kilimanjaro Journey', () => {
 
     const container = page.getByTestId('main-ui');
 
-    // Make sure we trigger a state update to reset the visible timer
+    // Ensure the container is visible. Since visibility timer depends on user interaction, we trigger it.
+    await page.evaluate(() => {
+        const mouseEvent = new MouseEvent('mousemove');
+        window.dispatchEvent(mouseEvent);
+    });
+
+    await expect(container).toHaveClass(/opacity-100/);
+
+    // Also update altitude to test behavior
     await page.evaluate(() => {
         if ((window as unknown as { useStore: { getState: () => { setTargetAltitude: (a: number) => void; setAltitude: (a: number) => void; } } }).useStore) {
             (window as unknown as { useStore: { getState: () => { setTargetAltitude: (a: number) => void; setAltitude: (a: number) => void; } } }).useStore.getState().setTargetAltitude(850);
             (window as unknown as { useStore: { getState: () => { setTargetAltitude: (a: number) => void; setAltitude: (a: number) => void; } } }).useStore.getState().setAltitude(850);
         }
     });
-
-    await expect(container).toHaveClass(/opacity-100/);
 
     // Wait for inactivity fade out.
     // In headless, doing nothing triggers the timeout naturally.

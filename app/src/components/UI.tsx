@@ -80,16 +80,16 @@ export const UI = () => {
         setDisplayZone(currentZone);
         setFadeZoneName(true); // Fade in name first
         prevZoneName.current = currentZone.name;
-      }, 1000);
+      }, 2000);
 
       const quoteTimer = setTimeout(() => {
-        setFadeZoneQuote(true); // Fade in quote 1.5s later
-      }, 2500);
+        setFadeZoneQuote(true); // Fade in quote 2s later
+      }, 4000);
 
       const hideTimer = setTimeout(() => {
         setFadeZoneName(false);
         setFadeZoneQuote(false);
-      }, 8000); // Hide both after 8 seconds
+      }, 10000); // Hide both after 10 seconds
 
       return () => {
         clearTimeout(updateZoneTimer);
@@ -211,7 +211,7 @@ export const UI = () => {
                           setTimeout(() => {
                             setTargetAltitude(801); // Trigger the start
                             setTourActive(true);
-                          }, 1500);
+                          }, 2500);
                         }}
                       >
                         Start Guided Tour
