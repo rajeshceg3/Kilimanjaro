@@ -33,6 +33,26 @@ export const Particles = () => {
   });
 
   const onBeforeCompile = useMemo(() => (shader: Shader) => {
+    shader.uniforms.time = { value: 0 };
+    shader.vertexShader = `
+      uniform float time;
+      attribute float scale;
+      varying float vScale;
+      ${shader.vertexShader}
+    `;
+    shader.vertexShader = shader.vertexShader.replace(
+      `#include <begin_vertex>`,
+      `
+      #include <begin_vertex>
+      vScale = scale;
+      `
+    );
+
+    shader.fragmentShader = `
+      uniform float time;
+      varying float vScale;
+      ${shader.fragmentShader}
+    `;
     shader.fragmentShader = shader.fragmentShader.replace(
       'gl_FragColor = vec4( outgoingLight, diffuseColor.a );',
       `
@@ -40,7 +60,12 @@ export const Particles = () => {
       if(length(coord) > 0.5) discard;
       float strength = 1.0 - (length(coord) * 2.0); // Soft edge
       strength = pow(strength, 0.5);
-      gl_FragColor = vec4( outgoingLight, diffuseColor.a * strength );
+
+      // Add subtle twinkling effect based on time and individual scale seed
+      float twinkle = sin(time * 3.0 + vScale * 10.0) * 0.5 + 0.5;
+      float finalAlpha = diffuseColor.a * strength * (0.5 + twinkle * 0.5);
+
+      gl_FragColor = vec4( outgoingLight, finalAlpha );
       `
     );
   }, []);
@@ -139,7 +164,19 @@ export const Particles = () => {
     material.opacity = MathUtils.lerp(material.opacity, opacity, delta * 2);
     material.size = MathUtils.lerp(material.size, size, delta * 2);
     material.color.lerp(new Color(zone.fogColor), delta); // Tint with fog color
+
+    // Update time uniform for twinkling
+    if (material.userData.shader) {
+      material.userData.shader.uniforms.time.value = state.clock.elapsedTime;
+    }
   });
+
+  const onBeforeCompileWithUserData = (shader: Shader) => {
+    onBeforeCompile(shader);
+    if (pointsRef.current && pointsRef.current.material) {
+        (pointsRef.current.material as any).userData.shader = shader;
+    }
+  };
 
   return (
     <points ref={pointsRef}>
@@ -162,7 +199,7 @@ export const Particles = () => {
         opacity={0.5}
         blending={AdditiveBlending}
         depthWrite={false}
-        onBeforeCompile={onBeforeCompile}
+        onBeforeCompile={onBeforeCompileWithUserData}
       />
     </points>
   );
