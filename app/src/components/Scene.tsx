@@ -96,8 +96,12 @@ export const Scene = () => {
     <>
       <Atmosphere />
       <Sky />
-      <ambientLight intensity={0.6} />
-      <directionalLight position={[10, 20, 10]} intensity={1.2} castShadow />
+      {/* Enhanced lighting for more volume and richness */}
+      <ambientLight intensity={0.4} />
+      <hemisphereLight args={['#ffffff', '#444444', 0.4]} />
+      <directionalLight position={[15, 25, 10]} intensity={1.2} color="#fff4e6" castShadow shadow-mapSize={[2048, 2048]} />
+      {/* Subtle fill light from the opposite direction to soften harsh shadows */}
+      <directionalLight position={[-10, 10, -10]} intensity={0.3} color="#a1c4fd" />
 
       <Particles />
       <Terrain />

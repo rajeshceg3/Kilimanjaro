@@ -158,6 +158,44 @@ const FloraZone = ({ range, type }: FloraProps) => {
       }
       `
     );
+
+    // Add color variation based on instance position
+    shader.fragmentShader = shader.fragmentShader.replace(
+      `#include <color_fragment>`,
+      `
+      #include <color_fragment>
+      // Extract position from instanceMatrix in fragment shader if possible,
+      // but simpler: use gl_FragCoord or varying if we passed it.
+      // Since we don't have a varying for instance position easily,
+      // we can add subtle noise based on world position if we add a varying.
+      `
+    );
+    // Let's inject a varying for world position to use for color variation
+    shader.vertexShader = `
+      varying vec3 vWorldPosition;
+      ${shader.vertexShader}
+    `;
+    shader.vertexShader = shader.vertexShader.replace(
+      `#include <worldpos_vertex>`,
+      `
+      #include <worldpos_vertex>
+      vWorldPosition = (modelMatrix * instanceMatrix * vec4(transformed, 1.0)).xyz;
+      `
+    );
+    shader.fragmentShader = `
+      varying vec3 vWorldPosition;
+      ${shader.fragmentShader}
+    `;
+    shader.fragmentShader = shader.fragmentShader.replace(
+      `#include <color_fragment>`,
+      `
+      #include <color_fragment>
+      // Add subtle color variation so trees aren't perfectly uniform
+      float variation = fract(sin(dot(floor(vWorldPosition.xz * 0.1) ,vec2(12.9898,78.233))) * 43758.5453) * 0.2 - 0.1;
+      diffuseColor.rgb += vec3(variation * 0.5, variation, variation * 0.2);
+      `
+    );
+
     if (materialRef.current) {
       materialRef.current.userData.shader = shader;
     }

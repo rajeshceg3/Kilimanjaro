@@ -62,12 +62,39 @@ export const Grass = () => {
             `
           );
 
-          // Add gradient logic based on UV
+          // Pass world position for variation
+          shader.vertexShader = `
+            varying vec3 vWorldPosition;
+            varying vec2 vUv;
+            ${shader.vertexShader}
+          `;
+          shader.vertexShader = shader.vertexShader.replace(
+            `#include <worldpos_vertex>`,
+            `
+            #include <worldpos_vertex>
+            vWorldPosition = (modelMatrix * instanceMatrix * vec4(transformed, 1.0)).xyz;
+            vUv = uv;
+            `
+          );
+
+          shader.fragmentShader = `
+            varying vec3 vWorldPosition;
+            varying vec2 vUv;
+            ${shader.fragmentShader}
+          `;
+
+          // Add gradient logic based on UV and instance position variation
           shader.fragmentShader = shader.fragmentShader.replace(
             `#include <color_fragment>`,
             `
             #include <color_fragment>
-            diffuseColor.rgb = mix(diffuseColor.rgb * 0.5, diffuseColor.rgb, vUv.y);
+
+            // Add instance color variation
+            float variation = fract(sin(dot(floor(vWorldPosition.xz * 0.5) ,vec2(12.9898,78.233))) * 43758.5453) * 0.2 - 0.1;
+            vec3 baseColor = diffuseColor.rgb + vec3(variation * 0.5, variation, variation * 0.2);
+
+            // Apply vertical gradient using vUv
+            diffuseColor.rgb = mix(baseColor * 0.4, baseColor, vUv.y);
             `
           );
 
