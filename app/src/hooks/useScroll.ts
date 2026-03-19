@@ -64,5 +64,5 @@ export const useScroll = () => {
       window.removeEventListener('touchstart', handleTouchStart);
       window.removeEventListener('touchmove', handleTouchMove);
     };
-  }, [setTargetAltitude]);
+  }, [setTargetAltitude, setTourPaused]);
 };
