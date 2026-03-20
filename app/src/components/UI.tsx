@@ -77,6 +77,7 @@ export const UI = () => {
     window.addEventListener('keydown', wakeUp);
 
     // Initial timeout
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     wakeUp();
 
     return () => {
