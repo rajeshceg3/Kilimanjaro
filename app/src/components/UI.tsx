@@ -1,6 +1,6 @@
 import { useStore } from '../store/useStore';
 import { getZoneAtAltitude, ZONES } from '../config/zones';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 
 export const UI = () => {
   const altitude = useStore((state) => Math.round(state.altitude));
@@ -16,8 +16,8 @@ export const UI = () => {
 
   // Zone transition state
   const [displayZone, setDisplayZone] = useState(currentZone);
-  const [fadeZoneName, setFadeZoneName] = useState(true);
-  const [fadeZoneQuote, setFadeZoneQuote] = useState(true);
+  const [fadeZoneName, setFadeZoneName] = useState(false);
+  const [fadeZoneQuote, setFadeZoneQuote] = useState(false);
 
   // Summit Specifics
   const isSummitReached = altitude >= 5890;
@@ -34,16 +34,43 @@ export const UI = () => {
     }
   }, [altitude]);
 
+  // Initial Progressive Disclosure Sequence
+  useEffect(() => {
+    if (hasStarted) {
+      const nameTimer = setTimeout(() => {
+        setFadeZoneName(true);
+      }, 1000);
+
+      const quoteTimer = setTimeout(() => {
+        setFadeZoneQuote(true);
+      }, 3000);
+
+      const hideTimer = setTimeout(() => {
+        setFadeZoneName(false);
+        setFadeZoneQuote(false);
+      }, 10000);
+
+      return () => {
+        clearTimeout(nameTimer);
+        clearTimeout(quoteTimer);
+        clearTimeout(hideTimer);
+      };
+    }
+  }, [hasStarted]);
+
   // Handle visibility based on activity
   const visibilityTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => {
-    const wakeUp = () => {
-        setVisible(true);
-        if (visibilityTimeoutRef.current) clearTimeout(visibilityTimeoutRef.current);
-        visibilityTimeoutRef.current = setTimeout(() => setVisible(false), 3000);
-    };
+  const wakeUp = useCallback((duration: number | Event = 3000) => {
+    setVisible(true);
+    if (visibilityTimeoutRef.current) clearTimeout(visibilityTimeoutRef.current);
 
+    // Check if the argument is an Event (from addEventListener) or a custom duration
+    const timeoutDuration = typeof duration === 'number' ? duration : 3000;
+    visibilityTimeoutRef.current = setTimeout(() => setVisible(false), timeoutDuration);
+  }, []);
+
+  useEffect(() => {
     window.addEventListener('mousemove', wakeUp);
     window.addEventListener('touchstart', wakeUp);
     window.addEventListener('wheel', wakeUp);
@@ -59,44 +86,47 @@ export const UI = () => {
       window.removeEventListener('keydown', wakeUp);
       if (visibilityTimeoutRef.current) clearTimeout(visibilityTimeoutRef.current);
     };
-  }, []);
+  }, [wakeUp]);
 
   // Handle zone text transition with progressive disclosure
   const prevZoneName = useRef(currentZone.name);
 
   useEffect(() => {
+    let updateZoneTimer: ReturnType<typeof setTimeout>;
+    let quoteTimer: ReturnType<typeof setTimeout>;
+    let hideTimer: ReturnType<typeof setTimeout>;
+
     if (currentZone.name !== prevZoneName.current) {
       // Start fade out for both
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setFadeZoneName(false);
       setFadeZoneQuote(false);
 
-      // Notice: We DO NOT force `setVisible(true)` here anymore.
-      // The HUD (altitude, timeline) only wakes on user interaction.
-      // The zone text (name/quote) is decoupled and controlled by fadeZoneName/fadeZoneQuote.
+      // Wake up the HUD for 5 seconds to provide context during transition
+      wakeUp(5000);
 
-      const updateZoneTimer = setTimeout(() => {
+      updateZoneTimer = setTimeout(() => {
         setDisplayZone(currentZone);
         setFadeZoneName(true); // Fade in name first
         prevZoneName.current = currentZone.name;
       }, 2000);
 
-      const quoteTimer = setTimeout(() => {
+      quoteTimer = setTimeout(() => {
         setFadeZoneQuote(true); // Fade in quote 2s later
       }, 4000);
 
-      const hideTimer = setTimeout(() => {
+      hideTimer = setTimeout(() => {
         setFadeZoneName(false);
         setFadeZoneQuote(false);
       }, 10000); // Hide both after 10 seconds
-
-      return () => {
-        clearTimeout(updateZoneTimer);
-        clearTimeout(quoteTimer);
-        clearTimeout(hideTimer);
-      };
     }
-  }, [currentZone]);
+
+    return () => {
+      clearTimeout(updateZoneTimer);
+      clearTimeout(quoteTimer);
+      clearTimeout(hideTimer);
+    };
+  }, [currentZone, wakeUp]);
 
   // Handle Summit Text
   useEffect(() => {

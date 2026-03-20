@@ -61,7 +61,7 @@ describe('UI Component', () => {
     expect(updatedContainer).toHaveClass('opacity-0');
   });
 
-  it('does NOT reset HUD visibility on zone change (decoupled)', () => {
+  it('DOES reset HUD visibility on zone change (narrative milestone)', () => {
     render(<UI />);
 
     // Advance time to make HUD hidden
@@ -76,7 +76,14 @@ describe('UI Component', () => {
       useStore.setState({ altitude: 2000 });
     });
 
-    // HUD should remain hidden since it's decoupled from zone narrative text
+    // HUD should wake up because of the narrative milestone transition
+    expect(getContainer()).toHaveClass('opacity-100');
+
+    // And fade out after the new 5s duration
+    act(() => {
+      vi.advanceTimersByTime(5000);
+    });
+
     expect(getContainer()).toHaveClass('opacity-0');
   });
 
