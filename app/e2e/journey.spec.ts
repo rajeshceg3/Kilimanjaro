@@ -20,8 +20,18 @@ test.describe('Mount Kilimanjaro Journey', () => {
     // When using `.getByText`, if it matches multiple things (like the tooltip and the main text),
     // `.first()` handles it correctly, which we do here.
     // However, the test might fail because of opacity fades, so let's make sure it's fully visible.
+
+    // With progressive disclosure, the texts fade in sequentially and fade out after 10s.
+    // Ensure we trigger the start sequence to start the timers.
+    await page.evaluate(() => {
+        if ((window as unknown as { useStore: { getState: () => { setTargetAltitude: (a: number) => void; setAltitude: (a: number) => void; } } }).useStore) {
+            (window as unknown as { useStore: { getState: () => { setTargetAltitude: (a: number) => void; setAltitude: (a: number) => void; } } }).useStore.getState().setTargetAltitude(810);
+            (window as unknown as { useStore: { getState: () => { setTargetAltitude: (a: number) => void; setAltitude: (a: number) => void; } } }).useStore.getState().setAltitude(810);
+        }
+    });
+
     await expect(page.getByText('Cultivation Zone').first()).toBeVisible({ timeout: 10000 });
-    await expect(page.getByText('"You begin where life already exists."').first()).toBeVisible();
+    await expect(page.getByText('"You begin where life already exists."').first()).toBeVisible({ timeout: 10000 });
   });
 
   test('ascends to Rainforest Zone on scroll', async ({ page }) => {
