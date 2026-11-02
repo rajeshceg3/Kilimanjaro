@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useStore } from '../store/useStore';
+import { getZoneAtAltitude } from '../config/zones';
 import { MathUtils } from 'three';
 
 export const AudioManager = () => {
@@ -13,6 +14,8 @@ export const AudioManager = () => {
   const summitLayerGainRef = useRef<GainNode | null>(null);
 
   const [isAudioStarted, setIsAudioStarted] = useState(false);
+  const altitude = useStore((state) => Math.round(state.altitude));
+  const ink = getZoneAtAltitude(altitude).brightScene ? 'zone-ink-dark' : 'zone-ink';
 
   useEffect(() => {
     // Initialize Audio Context
@@ -160,7 +163,7 @@ export const AudioManager = () => {
   if (isAudioStarted) return null;
 
   return (
-    <div className="fixed top-6 right-6 md:top-auto md:bottom-8 md:right-8 z-50 mix-blend-difference">
+    <div className={`fixed top-6 right-6 md:top-auto md:bottom-8 md:right-8 z-50 ${ink}`}>
       <button
         onClick={handleStartAudio}
         className="bg-white/5 backdrop-blur-md border border-white/10 text-white/70 hover:text-white/90 px-6 py-3 rounded-full text-[0.6rem] uppercase tracking-[0.4em] font-extralight hover:bg-white/10 hover:border-white/30 hover:scale-105 transition-all duration-500 shadow-lg hover:shadow-xl"

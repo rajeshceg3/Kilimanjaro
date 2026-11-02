@@ -10,3 +10,41 @@ html, body, #root {
   overflow: hidden; /* Prevent scrolling on body, we'll handle it in canvas or overlay */
   background-color: #000;
 }
+
+/* Zone-aware ink: white text over mix-blend-difference was unreadable on
+   bright scenes (cultivation tan, alpine grey, summit fog). Explicit ink
+   per zone brightness instead of blend-mode guessing. */
+.zone-ink { color: #f4f1e8; }
+.zone-ink-dark { color: #2b1d0e; }
+.zone-ink .text-white, .zone-ink-dark .text-white { color: inherit; }
+.zone-ink .text-white\/90 { color: rgb(244 241 232 / 0.9); }
+.zone-ink-dark .text-white\/90 { color: rgb(43 29 14 / 0.9); }
+.zone-ink .text-white\/80 { color: rgb(244 241 232 / 0.8); }
+.zone-ink-dark .text-white\/80 { color: rgb(43 29 14 / 0.8); }
+.zone-ink .text-white\/70 { color: rgb(244 241 232 / 0.7); }
+.zone-ink-dark .text-white\/70 { color: rgb(43 29 14 / 0.7); }
+.zone-ink .text-white\/60 { color: rgb(244 241 232 / 0.6); }
+.zone-ink-dark .text-white\/60 { color: rgb(43 29 14 / 0.65); }
+.zone-ink .text-white\/50 { color: rgb(244 241 232 / 0.5); }
+.zone-ink-dark .text-white\/50 { color: rgb(43 29 14 / 0.55); }
+.zone-ink .text-white\/40 { color: rgb(244 241 232 / 0.4); }
+.zone-ink-dark .text-white\/40 { color: rgb(43 29 14 / 0.55); }
+.zone-ink .bg-white\/5 { background-color: rgb(244 241 232 / 0.06); }
+.zone-ink-dark .bg-white\/5 { background-color: rgb(43 29 14 / 0.07); }
+.zone-ink .bg-white\/10 { background-color: rgb(244 241 232 / 0.1); }
+.zone-ink-dark .bg-white\/10 { background-color: rgb(43 29 14 / 0.12); }
+.zone-ink .bg-white\/50 { background-color: rgb(244 241 232 / 0.5); }
+.zone-ink-dark .bg-white\/50 { background-color: rgb(43 29 14 / 0.5); }
+.zone-ink .bg-white\/80 { background-color: rgb(244 241 232 / 0.8); }
+.zone-ink-dark .bg-white\/80 { background-color: rgb(43 29 14 / 0.8); }
+.zone-ink .border-white\/10 { border-color: rgb(244 241 232 / 0.15); }
+.zone-ink-dark .border-white\/10 { border-color: rgb(43 29 14 / 0.22); }
+.zone-ink .border-white\/20 { border-color: rgb(244 241 232 / 0.25); }
+.zone-ink-dark .border-white\/20 { border-color: rgb(43 29 14 / 0.32); }
+.zone-ink .via-white\/60 { --tw-gradient-via: rgb(244 241 232 / 0.6); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to); }
+.zone-ink-dark .via-white\/60 { --tw-gradient-via: rgb(43 29 14 / 0.6); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to); }
+.zone-ink .via-white\/80 { --tw-gradient-via: rgb(244 241 232 / 0.8); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to); }
+.zone-ink-dark .via-white\/80 { --tw-gradient-via: rgb(43 29 14 / 0.8); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to); }
+/* dark-ink zones: the quiet-register opacities wash out on bright scenes */
+.zone-ink-dark .opacity-60 { opacity: 0.85; }
+.zone-ink-dark .opacity-50 { opacity: 0.8; }
