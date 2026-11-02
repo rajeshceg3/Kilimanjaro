@@ -211,7 +211,7 @@ export const UI = () => {
 
         {/* Narrative Text Layer - Independent of HUD visibility */}
         {!showSummitText && hasStarted && (
-              <div className="fixed bottom-40 md:bottom-24 w-full text-center text-white px-4 mix-blend-difference pointer-events-none transition-opacity duration-1000 z-10">
+              <div className="fixed bottom-40 md:bottom-32 w-full text-center text-white px-4 mix-blend-difference pointer-events-none transition-opacity duration-1000 z-10">
                   <h2 className={`text-4xl md:text-5xl font-extralight tracking-[0.5em] text-white/90 mb-4 uppercase drop-shadow-md transition-all duration-1000 transform ${fadeZoneName ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
                   {displayZone.name}
                   </h2>
