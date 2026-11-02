@@ -17,6 +17,11 @@ export const Scene = () => {
   const tourSpeedRef = useRef(0);
 
   useFrame((state, delta) => {
+    // Jank guard: on slow devices or after tab restore a frame gap can span
+    // seconds. Never integrate more than 0.25s into one step - an unclamped
+    // lerp alpha extrapolates far past the target and the smoothed altitude
+    // oscillates into impossible values (observed 7277m/19881m renders).
+    const dt = Math.min(delta, 0.25);
     const altitude = useStore.getState().altitude;
     const targetAltitude = useStore.getState().targetAltitude;
     const setAltitude = useStore.getState().setAltitude;
@@ -52,10 +57,10 @@ export const Scene = () => {
 
       // Smooth acceleration/deceleration for the tour speed itself
       // When unpaused, gently accelerate to target speed. When paused, gently decelerate to 0.
-      tourSpeedRef.current = MathUtils.lerp(tourSpeedRef.current, targetSpeed, delta * 2.0);
+      tourSpeedRef.current = MathUtils.lerp(tourSpeedRef.current, targetSpeed, dt * 2.0);
 
       if (tourSpeedRef.current > 0.05) {
-        const newTarget = targetAltitude + tourSpeedRef.current * delta;
+        const newTarget = targetAltitude + tourSpeedRef.current * dt;
 
         if (newTarget >= 6000) {
           setTargetAltitude(6000);
@@ -78,7 +83,11 @@ export const Scene = () => {
     );
 
     // Smooth interpolation
-    const smoothedAltitude = MathUtils.lerp(altitude, targetAltitude, delta * smoothingFactor);
+    const smoothedAltitude = MathUtils.clamp(
+      MathUtils.lerp(altitude, targetAltitude, dt * smoothingFactor),
+      800,
+      6000
+    );
 
     if (Math.abs(smoothedAltitude - altitude) > 0.01) {
       setAltitude(smoothedAltitude);
@@ -98,7 +107,7 @@ export const Scene = () => {
 
     const perspectiveCamera = state.camera as PerspectiveCamera;
     const targetFov = MathUtils.lerp(45, 55, Math.min(1, tourSpeedRef.current / 20));
-    perspectiveCamera.fov = MathUtils.lerp(perspectiveCamera.fov, targetFov, delta * 2.0);
+    perspectiveCamera.fov = MathUtils.lerp(perspectiveCamera.fov, targetFov, dt * 2.0);
     perspectiveCamera.updateProjectionMatrix();
   });
 
