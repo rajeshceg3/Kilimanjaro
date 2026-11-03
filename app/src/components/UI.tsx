@@ -151,7 +151,7 @@ export const UI = () => {
             <div className="text-center text-white mix-blend-difference px-6">
                 <h1 className="text-5xl md:text-7xl font-extralight tracking-[0.3em] mb-4 uppercase animate-tracking-expand flex flex-col items-center">
                     <span className="font-serif italic text-white/80 text-4xl md:text-6xl mb-2 lowercase tracking-widest">mount</span>
-                    <span>Kilimanjaro</span>
+                    <span className="text-4xl tracking-[0.22em] md:text-7xl md:tracking-[0.3em]">Kilimanjaro</span>
                 </h1>
                 <p className="text-sm md:text-base opacity-60 font-light leading-relaxed italic max-w-md mx-auto font-serif tracking-widest mb-12 animate-fade-in-up" style={{ animationDelay: '1s' }}>
                     An ascent through ecological time.
@@ -211,8 +211,8 @@ export const UI = () => {
 
         {/* Narrative Text Layer - Independent of HUD visibility */}
         {!showSummitText && hasStarted && (
-              <div className="fixed bottom-16 md:bottom-24 w-full text-center text-white px-4 mix-blend-difference pointer-events-none transition-opacity duration-1000 z-10">
-                  <h2 className={`text-4xl md:text-5xl font-extralight tracking-[0.5em] text-white/90 mb-4 uppercase drop-shadow-md transition-all duration-1000 transform ${fadeZoneName ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+              <div className="fixed bottom-40 md:bottom-32 w-full text-center text-white px-4 mix-blend-difference pointer-events-none transition-opacity duration-1000 z-10">
+                  <h2 className={`text-2xl tracking-[0.3em] md:text-5xl md:tracking-[0.5em] font-extralight text-white/90 mb-4 uppercase drop-shadow-md transition-all duration-1000 transform ${fadeZoneName ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
                   {displayZone.name}
                   </h2>
                   <p className={`text-sm md:text-base opacity-60 font-light leading-relaxed italic max-w-lg mx-auto font-serif tracking-widest drop-shadow-md transition-all duration-1000 transform ${fadeZoneQuote ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
