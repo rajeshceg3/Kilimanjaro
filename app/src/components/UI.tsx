@@ -278,7 +278,7 @@ export const UI = () => {
 
         {/* Summit Special Text - Centered & Narrative */}
         <div data-testid="summit-ui" className={`fixed inset-0 flex items-center justify-center pointer-events-none transition-all duration-[3000ms] ${showSummitText ? 'opacity-100 backdrop-blur-md bg-black/60' : 'opacity-0 scale-105'}`}>
-            <div className={`text-center px-6 ${ink} transform transition-transform duration-[4000ms] ease-out`}>
+            <div className={`text-center px-6 text-white transform transition-transform duration-[4000ms] ease-out`}>
                 <p className="text-3xl md:text-5xl font-light tracking-widest mb-8 font-serif italic text-white/90 drop-shadow-2xl">
                     "You are standing above weather."
                 </p>
