@@ -6,6 +6,8 @@ export interface Zone {
   fogColor: string;
   fogDensity: number;
   quote: string;
+  /** bright fog/scene floor: HUD + narrative must use dark ink, not white blend */
+  brightScene: boolean;
 }
 
 export const ZONES: Zone[] = [
@@ -16,7 +18,8 @@ export const ZONES: Zone[] = [
     color: "#e6c229",
     fogColor: "#d4a76a",
     fogDensity: 0.02,
-    quote: "You begin where life already exists."
+    quote: "You begin where life already exists.",
+    brightScene: true
   },
   {
     name: "Rainforest Zone",
@@ -25,7 +28,8 @@ export const ZONES: Zone[] = [
     color: "#2d5a27",
     fogColor: "#1a3c18",
     fogDensity: 0.04,
-    quote: "Lush, enveloping, damp silence."
+    quote: "Lush, enveloping, damp silence.",
+    brightScene: false
   },
   {
     name: "Moorland Zone",
@@ -34,7 +38,8 @@ export const ZONES: Zone[] = [
     color: "#6b4c35",
     fogColor: "#583e2f",
     fogDensity: 0.03,
-    quote: "Alien calm, thinning air."
+    quote: "Alien calm, thinning air.",
+    brightScene: false
   },
   {
     name: "Alpine Desert",
@@ -43,7 +48,8 @@ export const ZONES: Zone[] = [
     color: "#8c8c8c",
     fogColor: "#a6a6a6",
     fogDensity: 0.02,
-    quote: "Vast, exposed, quiet."
+    quote: "Vast, exposed, quiet.",
+    brightScene: true
   },
   {
     name: "Arctic Summit",
@@ -52,7 +58,8 @@ export const ZONES: Zone[] = [
     color: "#ffffff",
     fogColor: "#e6f7ff",
     fogDensity: 0.015,
-    quote: "You are standing above weather."
+    quote: "You are standing above weather.",
+    brightScene: true
   }
 ];
 

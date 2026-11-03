@@ -10,6 +10,7 @@ export const UI = () => {
   const isTourPaused = useStore((state) => state.isTourPaused);
   const setTourPaused = useStore((state) => state.setTourPaused);
   const currentZone = getZoneAtAltitude(altitude);
+  const ink = currentZone.brightScene ? 'zone-ink-dark' : 'zone-ink';
 
   const [visible, setVisible] = useState(true);
   const [hasStarted, setHasStarted] = useState(false);
@@ -165,13 +166,13 @@ export const UI = () => {
           <div data-testid="main-ui" className={`fixed inset-0 pointer-events-none transition-opacity duration-1000 ${visible ? 'opacity-100' : 'opacity-0'}`}>
 
               {/* Top Left: Altitude - Instant comprehension */}
-              <div className="absolute top-8 left-8 md:top-12 md:left-12 text-white mix-blend-difference transition-opacity duration-1000">
+              <div className={`absolute top-8 left-8 md:top-12 md:left-12 ${ink} transition-opacity duration-1000`}>
                   <h1 className="text-xs opacity-50 uppercase tracking-[0.4em] mb-2 font-serif">Altitude</h1>
                   <p className="text-5xl md:text-7xl font-extralight tabular-nums tracking-[0.5em] drop-shadow-lg">{altitude}<span className="text-2xl md:text-3xl text-white/40 ml-2 font-serif font-light">m</span></p>
               </div>
 
               {/* Right: Progress Bar / Timeline - Discovery & Interaction */}
-              <div className="absolute right-8 md:right-12 top-1/2 transform -translate-y-1/2 h-[60vh] w-4 hidden md:flex flex-col items-center pointer-events-auto group">
+              <div className={`absolute right-8 md:right-12 top-1/2 transform -translate-y-1/2 h-[60vh] w-4 hidden md:flex flex-col items-center pointer-events-auto group ${ink}`}>
                   <div className="absolute w-[1px] h-full bg-white/10 group-hover:bg-white/20 transition-colors duration-500"></div>
                   <div
                     className="absolute bottom-0 w-[1px] bg-white/80 transition-all duration-300 ease-out shadow-[0_0_10px_rgba(255,255,255,0.5)]"
@@ -211,7 +212,7 @@ export const UI = () => {
 
         {/* Narrative Text Layer - Independent of HUD visibility */}
         {!showSummitText && hasStarted && (
-              <div className="fixed bottom-40 md:bottom-32 w-full text-center text-white px-4 mix-blend-difference pointer-events-none transition-opacity duration-1000 z-10">
+              <div className={`fixed bottom-40 md:bottom-32 w-full text-center px-4 ${ink} pointer-events-none transition-opacity duration-1000 z-10`}>
                   <h2 className={`text-2xl tracking-[0.3em] md:text-5xl md:tracking-[0.5em] font-extralight text-white/90 mb-4 uppercase drop-shadow-md transition-all duration-1000 transform ${fadeZoneName ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
                   {displayZone.name}
                   </h2>
@@ -223,7 +224,7 @@ export const UI = () => {
 
         {/* Buttons layer - Visible always but logic handles specific states */}
         {!showSummitText && hasStarted && (
-            <div className="fixed inset-0 pointer-events-none z-20">
+            <div className={`fixed inset-0 pointer-events-none z-20 ${ink}`}>
               {/* Simple scroll indicator if at start */}
               {altitude < 850 && (
                   <div className={`absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center animate-gentle-pulse transition-opacity duration-1000 pointer-events-auto ${visible ? 'opacity-100' : 'opacity-0'}`}>
@@ -277,7 +278,7 @@ export const UI = () => {
 
         {/* Summit Special Text - Centered & Narrative */}
         <div data-testid="summit-ui" className={`fixed inset-0 flex items-center justify-center pointer-events-none transition-all duration-[3000ms] ${showSummitText ? 'opacity-100 backdrop-blur-md bg-black/60' : 'opacity-0 scale-105'}`}>
-            <div className="text-center text-white mix-blend-difference px-6 transform transition-transform duration-[4000ms] ease-out">
+            <div className={`text-center px-6 text-white transform transition-transform duration-[4000ms] ease-out`}>
                 <p className="text-3xl md:text-5xl font-light tracking-widest mb-8 font-serif italic text-white/90 drop-shadow-2xl">
                     "You are standing above weather."
                 </p>
