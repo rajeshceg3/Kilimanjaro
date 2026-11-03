@@ -148,7 +148,7 @@ export const UI = () => {
   return (
     <>
         {/* Intro Overlay - First 5 seconds wow moment */}
-        <div data-testid="intro-ui" className={`fixed inset-0 flex flex-col items-center justify-center pointer-events-none transition-opacity duration-[2000ms] ${!hasStarted ? 'opacity-100 backdrop-blur-md bg-black/40' : 'opacity-0'}`}>
+        <div data-testid="intro-ui" className={`fixed inset-0 flex flex-col items-center justify-center pointer-events-none transition-opacity duration-[2000ms] ${!hasStarted ? 'opacity-100 bg-black/40' : 'opacity-0'}`}>
             <div className="text-center text-white mix-blend-difference px-6">
                 <h1 className="text-5xl md:text-7xl font-extralight tracking-[0.3em] mb-4 uppercase animate-tracking-expand flex flex-col items-center">
                     <span className="font-serif italic text-white/80 text-4xl md:text-6xl mb-2 lowercase tracking-widest">mount</span>
@@ -277,7 +277,7 @@ export const UI = () => {
         )}
 
         {/* Summit Special Text - Centered & Narrative */}
-        <div data-testid="summit-ui" className={`fixed inset-0 flex items-center justify-center pointer-events-none transition-all duration-[3000ms] ${showSummitText ? 'opacity-100 backdrop-blur-md bg-black/60' : 'opacity-0 scale-105'}`}>
+        <div data-testid="summit-ui" className={`fixed inset-0 flex items-center justify-center pointer-events-none transition-all duration-[3000ms] ${showSummitText ? 'opacity-100 bg-black/60' : 'opacity-0 scale-105'}`}>
             <div className={`text-center px-6 text-white transform transition-transform duration-[4000ms] ease-out`}>
                 <p className="text-3xl md:text-5xl font-light tracking-widest mb-8 font-serif italic text-white/90 drop-shadow-2xl">
                     "You are standing above weather."
