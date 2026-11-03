@@ -2,6 +2,7 @@
 import { useFrame, useThree } from '@react-three/fiber';
 import { useStore } from '../store/useStore';
 import { getZoneAtAltitude } from '../config/zones';
+import { MAX_FRAME_DT } from '../utils/altitude';
 import { Color, FogExp2 } from 'three';
 import { useEffect } from 'react';
 
@@ -24,7 +25,9 @@ export const Atmosphere = () => {
     const currentScene = state.scene;
 
     if (currentScene.fog instanceof FogExp2) {
-       const lerpFactor = delta * 1.0;
+       // Clamp frame delta: an unclamped factor (>1 on slow/hiccup frames)
+       // overshoots the target color and flashes white/negative RGB mid-transition.
+       const lerpFactor = Math.min(delta, MAX_FRAME_DT) * 1.0;
 
        currentScene.fog.color.lerp(targetColor, lerpFactor);
        currentScene.fog.density += (targetDensity - currentScene.fog.density) * lerpFactor;

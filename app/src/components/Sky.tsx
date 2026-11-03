@@ -9,6 +9,7 @@ import { getZoneAtAltitude } from '../config/zones';
 // We use extend to make it available as a JSX element
 import { extend } from '@react-three/fiber';
 import type { ThreeElement } from '@react-three/fiber';
+import { MAX_FRAME_DT } from '../utils/altitude';
 
 const GradientSkyMaterial = shaderMaterial(
   {
@@ -75,8 +76,11 @@ const SkyGradient = () => {
     else targetTop.set("#000000"); // Space
 
     // Lerp colors
-    materialRef.current.uniforms.bottomColor.value.lerp(targetBottom, delta * 0.5);
-    materialRef.current.uniforms.topColor.value.lerp(targetTop, delta * 0.5);
+    // Clamp delta so a slow/hiccup frame can't overshoot the target color
+    // (same jank class as the altitude fix - see utils/altitude).
+    const dt = Math.min(delta, MAX_FRAME_DT);
+    materialRef.current.uniforms.bottomColor.value.lerp(targetBottom, dt * 0.5);
+    materialRef.current.uniforms.topColor.value.lerp(targetTop, dt * 0.5);
   });
 
   return (
@@ -129,7 +133,7 @@ const Stars = () => {
     // Need to cast material to access opacity
     if (ref.current.material) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (ref.current.material as any).opacity = MathUtils.lerp((ref.current.material as any).opacity, targetOpacity, delta);
+        (ref.current.material as any).opacity = MathUtils.lerp((ref.current.material as any).opacity, targetOpacity, Math.min(delta, MAX_FRAME_DT));
     }
   });
 
