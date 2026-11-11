@@ -118,4 +118,40 @@ test.describe('Mount Kilimanjaro Journey', () => {
 
     await expect(container).toHaveClass(/opacity-100/, { timeout: 10000 });
   });
+
+  test('manual stepper pauses the auto tour and steps zones', async ({ page }) => {
+    test.setTimeout(60000);
+
+    // Start paused so the running tour cannot cross a zone boundary mid-assertion;
+    // pause-on-touch itself is covered by the unit suite.
+    await page.evaluate(() => {
+        const w = window as unknown as { useStore: { getState: () => { setTargetAltitude: (a: number) => void; setAltitude: (a: number) => void; setTourActive: (b: boolean) => void; setTourPaused: (b: boolean) => void; } } };
+        if (w.useStore) {
+            w.useStore.getState().setTargetAltitude(2000);
+            w.useStore.getState().setAltitude(2000);
+            w.useStore.getState().setTourActive(true);
+            w.useStore.getState().setTourPaused(true);
+        }
+    });
+
+    await expect(page.getByTestId('tour-controls')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByTestId('tour-zone-name')).toHaveText('Rainforest Zone');
+    await expect(page.getByTestId('tour-counter')).toHaveText('2 / 5');
+
+    await page.getByTestId('tour-next').click();
+
+    const state = await page.evaluate(() => {
+        const w = window as unknown as { useStore: { getState: () => { isTourPaused: boolean; targetAltitude: number } } };
+        return { paused: w.useStore.getState().isTourPaused, target: w.useStore.getState().targetAltitude };
+    });
+    expect(state.paused).toBe(true);
+    expect(state.target).toBe(2801);
+
+    await page.getByTestId('tour-prev').click();
+    const back = await page.evaluate(() => {
+        const w = window as unknown as { useStore: { getState: () => { targetAltitude: number } } };
+        return w.useStore.getState().targetAltitude;
+    });
+    expect(back).toBe(801);
+  });
 });

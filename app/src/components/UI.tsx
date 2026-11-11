@@ -11,6 +11,7 @@ export const UI = () => {
   const setTourPaused = useStore((state) => state.setTourPaused);
   const currentZone = getZoneAtAltitude(altitude);
   const ink = currentZone.brightScene ? 'zone-ink-dark' : 'zone-ink';
+  const zoneIndex = ZONES.findIndex((z) => z.name === currentZone.name);
 
   const [visible, setVisible] = useState(true);
   const [hasStarted, setHasStarted] = useState(false);
@@ -70,6 +71,22 @@ export const UI = () => {
     const timeoutDuration = typeof duration === 'number' ? duration : 3000;
     visibilityTimeoutRef.current = setTimeout(() => setVisible(false), timeoutDuration);
   }, []);
+
+  // Quiet manual step-through over the auto tour: touching Prev/Next pauses
+  // the ascent and lands on the start of the neighbouring zone.
+  const stepToZone = (dir: 1 | -1) => {
+    const target = zoneIndex + dir;
+    if (target < 0 || target >= ZONES.length) return;
+    setTourPaused(true);
+    wakeUp(6000);
+    setTargetAltitude(ZONES[target].minAltitude + 1);
+  };
+
+  const stepToSummit = () => {
+    setTourPaused(true);
+    wakeUp(6000);
+    setTargetAltitude(5895);
+  };
 
   useEffect(() => {
     window.addEventListener('mousemove', wakeUp);
@@ -188,7 +205,10 @@ export const UI = () => {
                         style={{ top: `${topPos}%`, transform: 'translateY(-50%)' }}
                         onMouseEnter={() => setHoveredZone(zone.name)}
                         onMouseLeave={() => setHoveredZone(null)}
-                        onClick={() => setTargetAltitude(zone.minAltitude)}
+                        onClick={() => {
+                          if (isTourActive) setTourPaused(true);
+                          setTargetAltitude(zone.minAltitude);
+                        }}
                       >
                           <div className={`w-2 h-[1px] bg-white transition-all duration-300 ${altitude >= zone.minAltitude ? 'opacity-100 w-3' : 'opacity-30'} group-hover/zone:w-4 group-hover/zone:opacity-100`}></div>
 
@@ -226,7 +246,7 @@ export const UI = () => {
         {!showSummitText && hasStarted && (
             <div className={`fixed inset-0 pointer-events-none z-20 ${ink}`}>
               {/* Simple scroll indicator if at start */}
-              {altitude < 850 && (
+              {altitude < 850 && !isTourActive && (
                   <div className={`absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center animate-gentle-pulse transition-opacity duration-1000 pointer-events-auto ${visible ? 'opacity-100' : 'opacity-0'}`}>
                       <div className="text-[0.6rem] text-white/60 uppercase tracking-[0.6em] font-light mb-2">
                           Scroll to Ascend
@@ -250,25 +270,45 @@ export const UI = () => {
                   </div>
               )}
 
-              {/* Guided Tour Status & Controls */}
-              {isTourActive && altitude >= 850 && (
-                  <div className={`absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center animate-fade-in transition-opacity duration-1000 pointer-events-auto ${visible ? 'opacity-100' : 'opacity-0'}`}>
-                      <div className="text-[0.6rem] text-white/40 uppercase tracking-[0.6em] font-light mb-2 flex items-center gap-2">
-                          {isTourPaused && <span className="w-1.5 h-1.5 rounded-full bg-white/50 animate-pulse"></span>}
-                          Guided Tour {isTourPaused ? 'Paused' : 'Active'}
+              {/* Guided Tour: live zone card with quiet manual stepping */}
+              {isTourActive && (
+                  <div data-testid="tour-controls" className={`absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center animate-fade-in transition-opacity duration-1000 pointer-events-auto ${visible ? 'opacity-100' : 'opacity-0'}`}>
+                      <div className="flex items-baseline gap-3 mb-3">
+                          {isTourPaused && <span className="w-1.5 h-1.5 rounded-full bg-white/50 animate-pulse self-center"></span>}
+                          <span data-testid="tour-zone-name" className="text-sm md:text-base font-light tracking-[0.2em] text-white/85">{currentZone.name}</span>
+                          <span data-testid="tour-counter" className="text-xs font-light tabular-nums text-white/40">{zoneIndex + 1} / {ZONES.length}</span>
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex items-center gap-2">
                         <button
-                          className="px-6 py-2 rounded-full border border-white/10 bg-black/10 backdrop-blur-sm text-[0.6rem] font-extralight tracking-widest text-white/60 hover:text-white/90 hover:border-white/30 transition-all duration-500 pointer-events-auto"
-                          onClick={() => setTourPaused(!isTourPaused)}
+                          data-testid="tour-prev"
+                          aria-label="Previous zone"
+                          disabled={zoneIndex <= 0}
+                          className="px-4 py-2 rounded-full border border-white/10 bg-black/10 backdrop-blur-sm text-xs font-light tracking-widest text-white/60 hover:text-white/90 hover:border-white/30 transition-all duration-500 pointer-events-auto disabled:opacity-30 disabled:hover:text-white/60 disabled:hover:border-white/10"
+                          onClick={() => stepToZone(-1)}
                         >
-                          {isTourPaused ? 'Resume' : 'Pause'}
+                          Prev
                         </button>
                         <button
-                          className="px-6 py-2 rounded-full border border-white/10 bg-black/10 backdrop-blur-sm text-[0.6rem] font-extralight tracking-widest text-white/60 hover:text-white/90 hover:border-white/30 transition-all duration-500 pointer-events-auto"
+                          data-testid="tour-auto"
+                          className="px-4 py-2 rounded-full border border-white/10 bg-black/10 backdrop-blur-sm text-xs font-light tracking-widest text-white/60 hover:text-white/90 hover:border-white/30 transition-all duration-500 pointer-events-auto"
+                          onClick={() => setTourPaused(!isTourPaused)}
+                        >
+                          {isTourPaused ? 'Auto' : 'Pause'}
+                        </button>
+                        <button
+                          data-testid="tour-exit"
+                          className="px-4 py-2 rounded-full border border-white/10 bg-black/10 backdrop-blur-sm text-xs font-light tracking-widest text-white/60 hover:text-white/90 hover:border-white/30 transition-all duration-500 pointer-events-auto"
                           onClick={() => setTourActive(false)}
                         >
-                          Exit Tour
+                          Exit
+                        </button>
+                        <button
+                          data-testid="tour-next"
+                          aria-label={zoneIndex >= ZONES.length - 1 ? 'Climb to the summit' : 'Next zone'}
+                          className={`px-6 py-2 rounded-full text-xs font-medium tracking-widest transition-all duration-500 pointer-events-auto hover:scale-105 active:scale-95 shadow-lg ${currentZone.brightScene ? 'bg-[#2b1d0e] text-[#f4f1e8] shadow-black/20' : 'bg-[#f4f1e8] text-[#2b1d0e] shadow-white/10'}`}
+                          onClick={() => (zoneIndex >= ZONES.length - 1 ? stepToSummit() : stepToZone(1))}
+                        >
+                          {zoneIndex >= ZONES.length - 1 ? 'Summit' : 'Next'}
                         </button>
                       </div>
                   </div>
