@@ -1,7 +1,6 @@
-// Shared reduced-motion check (fleet accessibility rule).
-// Ambient animation freezes when the user prefers reduced motion;
-// user-driven movement (tour, camera follow, fog) still responds.
-export const isReducedMotion = (): boolean =>
-  typeof window !== 'undefined' &&
-  typeof window.matchMedia === 'function' &&
-  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+// Reuse one live media query instead of allocating a new one in each frame callback.
+const preference = typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+  ? window.matchMedia('(prefers-reduced-motion: reduce)')
+  : null;
+
+export const isReducedMotion = (): boolean => preference?.matches ?? false;
