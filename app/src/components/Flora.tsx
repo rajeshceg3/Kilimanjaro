@@ -66,9 +66,9 @@ const FloraZone = ({ range, type }: FloraProps) => {
         const trunkGeo = new CylinderGeometry(0.2, 0.4, 3, 16, 4);
         trunkGeo.translate(0, 1.5, 0);
 
-        // High res for smooth normals
-        // Increased geometry detail to 32 segments to ensure smooth shading after displacement
-        let crownGeo = new IcosahedronGeometry(2.5, 32);
+        // Keep the displaced canopy organic without the old detail-32 render cost.
+        // The crowns are instanced 150 times and cast shadows; detail 32 stalls zone stepping.
+        let crownGeo = new IcosahedronGeometry(2.5, 16);
         crownGeo.scale(1, 0.5, 1);
         crownGeo.translate(0, 3.0, 0);
         // Soft displacement to make it organic, not spiky
@@ -85,7 +85,8 @@ const FloraZone = ({ range, type }: FloraProps) => {
         const trunkGeo = new CylinderGeometry(0.3, 0.6, 8, 16, 4);
         trunkGeo.translate(0, 4, 0);
 
-        let crownGeo = new IcosahedronGeometry(3.5, 32);
+        // Match the cultivation canopy render budget (see the tour-step E2E).
+        let crownGeo = new IcosahedronGeometry(3.5, 16);
         crownGeo.scale(1, 0.8, 1);
         crownGeo.translate(0, 8, 0);
         crownGeo = createOrganicGeometry(crownGeo, 0.8, 1.2) as IcosahedronGeometry;
@@ -115,7 +116,7 @@ const FloraZone = ({ range, type }: FloraProps) => {
         };
       }
       case 'rock': {
-        let rockGeo = new IcosahedronGeometry(2.5, 32);
+        let rockGeo = new IcosahedronGeometry(2.5, 16);
         // Higher res, smoother crags
         rockGeo = createOrganicGeometry(rockGeo, 1.0, 1.0) as IcosahedronGeometry;
 
@@ -126,7 +127,7 @@ const FloraZone = ({ range, type }: FloraProps) => {
         };
       }
       case 'ice': {
-        let iceGeo = new IcosahedronGeometry(2.5, 32);
+        let iceGeo = new IcosahedronGeometry(2.5, 16);
         iceGeo = createOrganicGeometry(iceGeo, 0.8, 1.5) as IcosahedronGeometry;
 
         return {
