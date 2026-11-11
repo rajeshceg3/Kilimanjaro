@@ -73,20 +73,38 @@ export const UI = () => {
   }, []);
 
   // Quiet manual step-through over the auto tour: touching Prev/Next pauses
-  // the ascent and lands on the start of the neighbouring zone.
+  // the ascent and lands on the start of the neighbouring zone. The summit
+  // counts as the final stop, and stepping wraps at both ends.
   const stepToZone = (dir: 1 | -1) => {
-    const target = zoneIndex + dir;
-    if (target < 0 || target >= ZONES.length) return;
     setTourPaused(true);
     wakeUp(6000);
-    setTargetAltitude(ZONES[target].minAltitude + 1);
+    const lastIdx = ZONES.length - 1;
+    if (dir === 1) {
+      if (isSummitReached) setTargetAltitude(ZONES[0].minAltitude + 1);
+      else if (zoneIndex >= lastIdx) setTargetAltitude(5895);
+      else setTargetAltitude(ZONES[zoneIndex + 1].minAltitude + 1);
+    } else {
+      if (isSummitReached) setTargetAltitude(ZONES[lastIdx].minAltitude + 1);
+      else if (zoneIndex <= 0) setTargetAltitude(5895);
+      else setTargetAltitude(ZONES[zoneIndex - 1].minAltitude + 1);
+    }
   };
 
-  const stepToSummit = () => {
-    setTourPaused(true);
-    wakeUp(6000);
-    setTargetAltitude(5895);
-  };
+  // Arrow keys mirror the stepper buttons, ignoring text inputs.
+  useEffect(() => {
+    if (!isTourActive) return;
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+      if (e.key === 'ArrowRight') stepToZone(1);
+      else if (e.key === 'ArrowLeft') stepToZone(-1);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isTourActive, zoneIndex, isSummitReached, wakeUp]);
+
+
 
   useEffect(() => {
     window.addEventListener('mousemove', wakeUp);
@@ -282,19 +300,20 @@ export const UI = () => {
                         <button
                           data-testid="tour-prev"
                           aria-label="Previous zone"
-                          disabled={zoneIndex <= 0}
-                          className="px-4 py-2 rounded-full border border-white/10 bg-black/10 backdrop-blur-sm text-xs font-light tracking-widest text-white/60 hover:text-white/90 hover:border-white/30 transition-all duration-500 pointer-events-auto disabled:opacity-30 disabled:hover:text-white/60 disabled:hover:border-white/10"
+                          className="px-4 py-2 rounded-full border border-white/10 bg-black/10 backdrop-blur-sm text-xs font-light tracking-widest text-white/60 hover:text-white/90 hover:border-white/30 transition-all duration-500 pointer-events-auto"
                           onClick={() => stepToZone(-1)}
                         >
                           Prev
                         </button>
-                        <button
-                          data-testid="tour-auto"
-                          className="px-4 py-2 rounded-full border border-white/10 bg-black/10 backdrop-blur-sm text-xs font-light tracking-widest text-white/60 hover:text-white/90 hover:border-white/30 transition-all duration-500 pointer-events-auto"
-                          onClick={() => setTourPaused(!isTourPaused)}
-                        >
-                          {isTourPaused ? 'Auto' : 'Pause'}
-                        </button>
+                        {isTourPaused && (
+                          <button
+                            data-testid="tour-auto"
+                            className="px-4 py-2 rounded-full border border-white/10 bg-black/10 backdrop-blur-sm text-xs font-light tracking-widest text-white/60 hover:text-white/90 hover:border-white/30 transition-all duration-500 pointer-events-auto"
+                            onClick={() => setTourPaused(false)}
+                          >
+                            Auto
+                          </button>
+                        )}
                         <button
                           data-testid="tour-exit"
                           className="px-4 py-2 rounded-full border border-white/10 bg-black/10 backdrop-blur-sm text-xs font-light tracking-widest text-white/60 hover:text-white/90 hover:border-white/30 transition-all duration-500 pointer-events-auto"
@@ -306,7 +325,7 @@ export const UI = () => {
                           data-testid="tour-next"
                           aria-label={zoneIndex >= ZONES.length - 1 ? 'Climb to the summit' : 'Next zone'}
                           className={`px-6 py-2 rounded-full text-xs font-medium tracking-widest transition-all duration-500 pointer-events-auto hover:scale-105 active:scale-95 shadow-lg ${currentZone.brightScene ? 'bg-[#2b1d0e] text-[#f4f1e8] shadow-black/20' : 'bg-[#f4f1e8] text-[#2b1d0e] shadow-white/10'}`}
-                          onClick={() => (zoneIndex >= ZONES.length - 1 ? stepToSummit() : stepToZone(1))}
+                          onClick={() => stepToZone(1)}
                         >
                           {zoneIndex >= ZONES.length - 1 ? 'Summit' : 'Next'}
                         </button>
