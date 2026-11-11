@@ -4,6 +4,7 @@ import { DoubleSide, Color, AdditiveBlending, ShaderMaterial } from 'three';
 import { shaderMaterial } from '@react-three/drei';
 import { extend } from '@react-three/fiber';
 import type { ThreeElement } from '@react-three/fiber';
+import { isReducedMotion } from '../../utils/reducedMotion';
 
 // --- Aurora Material Shader ---
 const AuroraMaterial = shaderMaterial(
@@ -75,6 +76,7 @@ const AuroraLayer = ({ position, rotation, args }: AuroraLayerProps) => {
   const materialRef = useRef<ShaderMaterial>(null);
 
   useFrame((state) => {
+    if (isReducedMotion()) return;
     if (materialRef.current) {
       materialRef.current.uniforms.time.value = state.clock.elapsedTime;
     }

@@ -10,6 +10,7 @@ import { getZoneAtAltitude } from '../config/zones';
 import { extend } from '@react-three/fiber';
 import type { ThreeElement } from '@react-three/fiber';
 import { MAX_FRAME_DT } from '../utils/altitude';
+import { isReducedMotion } from '../utils/reducedMotion';
 
 const GradientSkyMaterial = shaderMaterial(
   {
@@ -120,8 +121,8 @@ const Stars = () => {
     // Follow camera
     ref.current.position.copy(state.camera.position);
 
-    // Rotate stars slowly
-    ref.current.rotation.y += delta * 0.01;
+    // Rotate stars slowly (frozen under reduced motion)
+    if (!isReducedMotion()) ref.current.rotation.y += delta * 0.01;
 
     // Fade in based on altitude
     const altitude = useStore.getState().altitude;
