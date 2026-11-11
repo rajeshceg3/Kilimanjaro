@@ -137,12 +137,29 @@ describe('Guided tour manual stepper', () => {
     expect(useStore.getState().isTourPaused).toBe(false);
   });
 
-  it('disables Prev in the first zone', () => {
+  it('wraps Prev from the first zone to the summit', () => {
     act(() => {
       useStore.setState({ altitude: 900, targetAltitude: 900 });
     });
     render(<UI />);
-    expect(screen.getByTestId('tour-prev')).toBeDisabled();
+    fireEvent.click(screen.getByTestId('tour-prev'));
+    expect(useStore.getState().targetAltitude).toBe(5895);
+    expect(useStore.getState().isTourPaused).toBe(true);
+  });
+
+  it('hides Auto while the ascent runs and shows it only in manual mode', () => {
+    render(<UI />);
+    expect(screen.queryByTestId('tour-auto')).toBeNull();
+    fireEvent.click(screen.getByTestId('tour-next'));
+    expect(screen.getByTestId('tour-auto')).toBeTruthy();
+  });
+
+  it('arrow keys mirror Next and Prev', () => {
+    render(<UI />);
+    fireEvent.keyDown(window, { key: 'ArrowRight' });
+    expect(useStore.getState().targetAltitude).toBe(2801);
+    fireEvent.keyDown(window, { key: 'ArrowLeft' });
+    expect(useStore.getState().targetAltitude).toBe(801);
   });
 
   it('offers Summit from the last zone and climbs to 5895', () => {
@@ -155,5 +172,14 @@ describe('Guided tour manual stepper', () => {
     fireEvent.click(next);
     expect(useStore.getState().targetAltitude).toBe(5895);
     expect(useStore.getState().isTourPaused).toBe(true);
+  });
+
+  it('wraps Next from the summit back to the first zone', () => {
+    act(() => {
+      useStore.setState({ altitude: 5895, targetAltitude: 5895 });
+    });
+    render(<UI />);
+    fireEvent.click(screen.getByTestId('tour-next'));
+    expect(useStore.getState().targetAltitude).toBe(801);
   });
 });

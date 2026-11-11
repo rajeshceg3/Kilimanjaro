@@ -48,3 +48,15 @@ html, body, #root {
 /* dark-ink zones: the quiet-register opacities wash out on bright scenes */
 .zone-ink-dark .opacity-60 { opacity: 0.85; }
 .zone-ink-dark .opacity-50 { opacity: 0.8; }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-testid="tour-controls"],
+  [data-testid="tour-controls"] button {
+    transition: none !important;
+    animation: none !important;
+  }
+  [data-testid="tour-controls"] button:hover,
+  [data-testid="tour-controls"] button:active {
+    transform: none !important;
+  }
+}
