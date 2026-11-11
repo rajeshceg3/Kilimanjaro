@@ -1,4 +1,4 @@
-import { render, screen, act } from '@testing-library/react';
+import { render, screen, act, fireEvent } from '@testing-library/react';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { UI } from './UI';
 import { useStore } from '../store/useStore';
@@ -11,7 +11,7 @@ describe('UI Component', () => {
     vi.useFakeTimers();
     // Reset store to an altitude above 805 to bypass the intro screen logic in tests
     act(() => {
-      useStore.setState({ altitude: 810, targetAltitude: 810 });
+      useStore.setState({ altitude: 810, targetAltitude: 810, isTourActive: false, isTourPaused: false });
     });
   });
 
@@ -99,5 +99,61 @@ describe('UI Component', () => {
     });
 
     expect(getContainer()).toHaveClass('opacity-100');
+  });
+});
+
+describe('Guided tour manual stepper', () => {
+  beforeEach(() => {
+    act(() => {
+      useStore.setState({ altitude: 2000, targetAltitude: 2000, isTourActive: true, isTourPaused: false });
+    });
+  });
+
+  it('shows the current zone and position counter on the tour card', () => {
+    render(<UI />);
+    expect(screen.getByTestId('tour-zone-name')).toHaveTextContent('Rainforest Zone');
+    expect(screen.getByTestId('tour-counter')).toHaveTextContent('2 / 5');
+  });
+
+  it('Next pauses the auto tour and targets the next zone start', () => {
+    render(<UI />);
+    fireEvent.click(screen.getByTestId('tour-next'));
+    expect(useStore.getState().isTourPaused).toBe(true);
+    expect(useStore.getState().targetAltitude).toBe(2801);
+  });
+
+  it('Prev pauses the auto tour and steps back to the previous zone start', () => {
+    render(<UI />);
+    fireEvent.click(screen.getByTestId('tour-prev'));
+    expect(useStore.getState().isTourPaused).toBe(true);
+    expect(useStore.getState().targetAltitude).toBe(801);
+  });
+
+  it('Auto resumes the ascent after manual stepping', () => {
+    render(<UI />);
+    fireEvent.click(screen.getByTestId('tour-next'));
+    expect(useStore.getState().isTourPaused).toBe(true);
+    fireEvent.click(screen.getByTestId('tour-auto'));
+    expect(useStore.getState().isTourPaused).toBe(false);
+  });
+
+  it('disables Prev in the first zone', () => {
+    act(() => {
+      useStore.setState({ altitude: 900, targetAltitude: 900 });
+    });
+    render(<UI />);
+    expect(screen.getByTestId('tour-prev')).toBeDisabled();
+  });
+
+  it('offers Summit from the last zone and climbs to 5895', () => {
+    act(() => {
+      useStore.setState({ altitude: 5200, targetAltitude: 5200 });
+    });
+    render(<UI />);
+    const next = screen.getByTestId('tour-next');
+    expect(next).toHaveTextContent('Summit');
+    fireEvent.click(next);
+    expect(useStore.getState().targetAltitude).toBe(5895);
+    expect(useStore.getState().isTourPaused).toBe(true);
   });
 });
