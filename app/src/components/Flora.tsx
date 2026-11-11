@@ -4,6 +4,7 @@ import { useFrame } from '@react-three/fiber';
 import { DoubleSide, MathUtils, IcosahedronGeometry, CylinderGeometry, ConeGeometry, MeshStandardMaterial } from 'three';
 import { createOrganicGeometry } from '../utils/geometry';
 import { getTerrainZ } from '../utils/terrain';
+import { isReducedMotion } from '../utils/reducedMotion';
 
 // Define a local interface for the shader object to satisfy TypeScript,
 // since 'three' doesn't export a 'Shader' type directly.
@@ -30,6 +31,7 @@ const FloraZone = ({ range, type }: FloraProps) => {
   const materialRef = useRef<MeshStandardMaterial>(null);
 
   useFrame((state) => {
+    if (isReducedMotion()) return;
     if (materialRef.current && materialRef.current.userData.shader) {
       materialRef.current.userData.shader.uniforms.time.value = state.clock.elapsedTime;
     }

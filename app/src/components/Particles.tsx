@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import { useStore } from '../store/useStore';
 import { getZoneAtAltitude } from '../config/zones';
 import { Color, AdditiveBlending, Points, MathUtils, PointsMaterial } from 'three';
+import { isReducedMotion } from '../utils/reducedMotion';
 
 interface Shader {
   uniforms: { [uniform: string]: { value: unknown } };
@@ -72,6 +73,7 @@ export const Particles = () => {
 
   useFrame((state, delta) => {
     if (!pointsRef.current) return;
+    if (isReducedMotion()) return;
 
     const altitude = useStore.getState().altitude;
     const zone = getZoneAtAltitude(altitude);

@@ -13,6 +13,7 @@ import { Clouds } from './ZoneDetails/Clouds';
 import { Aurora } from './ZoneDetails/Aurora';
 import { Glacier } from './ZoneDetails/Glacier';
 import { Terrain } from './Terrain';
+import { isReducedMotion } from '../utils/reducedMotion';
 
 export const Scene = () => {
   const tourSpeedRef = useRef(0);
@@ -84,8 +85,9 @@ export const Scene = () => {
     const yPos = smoothedAltitude * scale;
 
     const time = state.clock.getElapsedTime();
-    const swayX = Math.sin(time * 0.5) * 0.5;
-    const swayZ = Math.cos(time * 0.3) * 0.5;
+    const still = isReducedMotion();
+    const swayX = still ? 0 : Math.sin(time * 0.5) * 0.5;
+    const swayZ = still ? 0 : Math.cos(time * 0.3) * 0.5;
 
     state.camera.position.x = swayX;
     state.camera.position.y = yPos;

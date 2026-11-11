@@ -5,6 +5,7 @@ import { MathUtils, DoubleSide, Color, AdditiveBlending, ShaderMaterial } from '
 import { shaderMaterial } from '@react-three/drei';
 import { extend } from '@react-three/fiber';
 import type { ThreeElement } from '@react-three/fiber';
+import { isReducedMotion } from '../../utils/reducedMotion';
 
 // --- Cloud Material Shader ---
 const CloudMaterial = shaderMaterial(
@@ -114,6 +115,7 @@ export const Clouds = () => {
   }, []);
 
   useFrame((state) => {
+    if (isReducedMotion()) return;
     if (materialRef.current) {
       materialRef.current.time = state.clock.elapsedTime;
     }

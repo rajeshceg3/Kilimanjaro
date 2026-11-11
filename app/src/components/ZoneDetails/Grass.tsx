@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import { Instances, Instance } from '@react-three/drei';
 import { MathUtils, DoubleSide, MeshStandardMaterial } from 'three';
 import { getTerrainZ } from '../../utils/terrain';
+import { isReducedMotion } from '../../utils/reducedMotion';
 
 const COUNT = 1000;
 const RANGE_Y: [number, number] = [800, 1800]; // Cultivation Zone
@@ -31,6 +32,7 @@ export const Grass = () => {
   }, []);
 
   useFrame((state) => {
+    if (isReducedMotion()) return;
     if (materialRef.current && materialRef.current.userData.shader) {
       materialRef.current.userData.shader.uniforms.time.value = state.clock.elapsedTime;
     }
